@@ -42,20 +42,25 @@
 
 /* USER CODE BEGIN Includes */
 #include "ws2812b_multi_strip_driver.h"
+#include "LED_shows.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim6;
+
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-extern uint8_t LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LEDS_IN_STRIP][NUM_OF_CFG_BYTES_PER_LED];
+extern volatile show_db_t shows[NUM_OF_SHOWS];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM6_Init(void);
 static void MX_NVIC_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -64,59 +69,6 @@ static void MX_NVIC_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void LED_snake(void)
-{
-    volatile int led_id, strip_id;
-
-    uint32_t cycle_cntr=0;
-    LD2_GPIO_Port->ODR |= LD2_Pin;
-    while (1)
-    {
-        for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
-        {
-            for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
-            {
-                LED_strips[strip_id][led_id][0] = LED_strips[0][led_id-1][0];
-                LED_strips[strip_id][led_id][1] = LED_strips[0][led_id-1][1];
-                LED_strips[strip_id][led_id][2] = LED_strips[0][led_id-1][2];
-            }
-            if ((cycle_cntr%15)<8)
-            {
-                uint8_t power = ((cycle_cntr%15 == 0) || (cycle_cntr%15 == 7)) ? 1 :
-                                ((cycle_cntr%15 == 1) || (cycle_cntr%15 == 6)) ? 5 : 50;
-                if ((cycle_cntr%45) < 15)
-                {
-                    LED_strips[strip_id][0][GREEN] = power;
-                    LED_strips[strip_id][0][RED]   = 0;
-                    LED_strips[strip_id][0][BLUE]  = 0;
-                }
-                else if ((cycle_cntr%45) < 30)
-                {
-                    LED_strips[strip_id][0][GREEN] = 0;
-                    LED_strips[strip_id][0][RED]   = power;
-                    LED_strips[strip_id][0][BLUE]  = 0;
-                }
-                else
-                {
-                    LED_strips[strip_id][0][GREEN] = 0;
-                    LED_strips[strip_id][0][RED]   = 0;
-                    LED_strips[strip_id][0][BLUE]  = power;
-                }
-            }
-            else
-            {
-                LED_strips[strip_id][0][GREEN] = 0;
-                LED_strips[strip_id][0][RED] = 0;
-                LED_strips[strip_id][0][BLUE] = 0;
-            }
-        }
-        update_driver_mask();
-        drive_port_strips();
-        HAL_Delay(30);
-        cycle_cntr++;
-    }
-}
-
 
 /* USER CODE END 0 */
 
@@ -150,6 +102,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_TIM6_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
@@ -157,6 +110,8 @@ int main(void)
   //TODO - update function to extract the GPIOs according to the strip db
   update_GPIO_all_strips_mask(GPIO_PORT_C, (GPIO_PIN_0  | GPIO_PIN_1  | GPIO_PIN_2  | GPIO_PIN_3));
   update_GPIO_all_strips_mask(GPIO_PORT_B, (GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15));
+  shows[SHOWS_SNAKE].direction = REVERSE_DIRECTION;
+  shows[SHOWS_SNAKE].max_power = 50;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -167,7 +122,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-     LED_snake();
+     snake_show();
   }
   /* USER CODE END 3 */
 
@@ -248,6 +203,30 @@ static void MX_NVIC_Init(void)
   /* USART2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USART2_IRQn);
+}
+
+/* TIM6 init function */
+static void MX_TIM6_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 0;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
 }
 
 /* USART2 init function */
