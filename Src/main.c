@@ -66,7 +66,6 @@ static void MX_NVIC_Init(void);
 /* USER CODE BEGIN 0 */
 void LED_snake(void)
 {
-    volatile int idx;
     volatile int led_id, strip_id;
 
     uint32_t cycle_cntr=0;
@@ -81,46 +80,39 @@ void LED_snake(void)
                 LED_strips[strip_id][led_id][1] = LED_strips[0][led_id-1][1];
                 LED_strips[strip_id][led_id][2] = LED_strips[0][led_id-1][2];
             }
-        }
-        if ((cycle_cntr%15)<8)
-        {
-            uint8_t power = ((cycle_cntr%15 == 0) || (cycle_cntr%15 == 7)) ? 1 :
-                            ((cycle_cntr%15 == 1) || (cycle_cntr%15 == 6)) ? 5 : 50;
-            for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+            if ((cycle_cntr%15)<8)
             {
+                uint8_t power = ((cycle_cntr%15 == 0) || (cycle_cntr%15 == 7)) ? 1 :
+                                ((cycle_cntr%15 == 1) || (cycle_cntr%15 == 6)) ? 5 : 50;
                 if ((cycle_cntr%45) < 15)
                 {
-                    LED_strips[led_id][0][GREEN] = power;
-                    LED_strips[led_id][0][RED]   = 0;
-                    LED_strips[led_id][0][BLUE]  = 0;
+                    LED_strips[strip_id][0][GREEN] = power;
+                    LED_strips[strip_id][0][RED]   = 0;
+                    LED_strips[strip_id][0][BLUE]  = 0;
                 }
                 else if ((cycle_cntr%45) < 30)
                 {
-                    LED_strips[led_id][0][GREEN] = 0;
-                    LED_strips[led_id][0][RED]   = power;
-                    LED_strips[led_id][0][BLUE]  = 0;
+                    LED_strips[strip_id][0][GREEN] = 0;
+                    LED_strips[strip_id][0][RED]   = power;
+                    LED_strips[strip_id][0][BLUE]  = 0;
                 }
                 else
                 {
-                    LED_strips[led_id][0][GREEN] = 0;
-                    LED_strips[led_id][0][RED]   = 0;
-                    LED_strips[led_id][0][BLUE]  = power;
+                    LED_strips[strip_id][0][GREEN] = 0;
+                    LED_strips[strip_id][0][RED]   = 0;
+                    LED_strips[strip_id][0][BLUE]  = power;
                 }
             }
-        }
-        else
-        {
-            for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+            else
             {
-                LED_strips[led_id][0][GREEN] = 0;
-                LED_strips[led_id][0][RED] = 0;
-                LED_strips[led_id][0][BLUE] = 0;
+                LED_strips[strip_id][0][GREEN] = 0;
+                LED_strips[strip_id][0][RED] = 0;
+                LED_strips[strip_id][0][BLUE] = 0;
             }
         }
-        update_GPIO_all_strips_mask(GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
-        update_driver_mask(GPIOB_PORT);
+        update_driver_mask();
         drive_port_strips();
-        HAL_Delay(50);
+        HAL_Delay(30);
         cycle_cntr++;
     }
 }
@@ -162,7 +154,9 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-
+  //TODO - update function to extract the GPIOs according to the strip db
+  update_GPIO_all_strips_mask(GPIO_PORT_C, (GPIO_PIN_0  | GPIO_PIN_1  | GPIO_PIN_2  | GPIO_PIN_3));
+  update_GPIO_all_strips_mask(GPIO_PORT_B, (GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15));
   /* USER CODE END 2 */
 
   /* Infinite loop */
