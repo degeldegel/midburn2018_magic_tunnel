@@ -3,7 +3,7 @@
 <ProjectName>C:\git\midburn2018_magic_tunnel\\midburn2018_magic_tunnel</ProjectName>
 <ProjectNature>C</ProjectNature> 
 <CMSIS>..\Drivers\CMSIS</CMSIS>
-<HAL_Driver>C:\Users\DanielG\STM32Cube\Repository\STM32Cube_FW_F4_V1.21.0\Drivers\CMSIS</HAL_Driver>
+<HAL_Driver>C:\Users\danielg\STM32Cube\Repository\STM32Cube_FW_F4_V1.21.0\Drivers\CMSIS</HAL_Driver>
 <Toolchain>TrueSTUDIO</Toolchain>
 <Version>0</Version>
 

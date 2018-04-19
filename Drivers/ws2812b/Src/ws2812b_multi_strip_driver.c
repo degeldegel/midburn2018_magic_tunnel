@@ -9,7 +9,7 @@ uint16_t GPIO_all_strips_mask[MAX_SUPPORTED_NUM_OF_PORTS];
 
 /* user interface db, the user fills up this array according to LED strip id and led number,
  * the driver will push the LED strips according to this db */
-uint8_t  LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LEDS_IN_STRIP][NUM_OF_CFG_BYTES_PER_LED];
+uint8_t  LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LEDS_IN_STRIP][NUM_OF_CFG_BYTES_PER_LED] = {0};
 
 uint8_t strip_ports[MAX_SUPPORTED_NUM_OF_STRIPS] =
        /* Strip #0     Strip #1     Strip #2     Strip #3     Strip #4     Strip #5     Strip #6     Strip #7  */
@@ -27,11 +27,13 @@ uint16_t strip_GPIOs[MAX_SUPPORTED_NUM_OF_STRIPS] =
         GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA};
 
 /**
-  * @brief  main function that drives the strips, it should be called after the LED_strips db is updated with the new output.
+  * @brief  This functions performs the actual update of the GPIOs of the strip LEDs. it is using the masks updated in function
+  *         update_driver_masks. this is the heart of the multi strip driver, it updates the PORTs of the GPIOs, this enables it
+  *         to update multiple GPIOs on parallel. The update timing is according to ws2812b strip LED specifications.
   * @param  void
   * @retval void
   */
-void drive_port_strips(void)
+void drive_ws2812b_LED_strips_via_GPIO_ports(void)
 {
 	volatile int idx;
 	int i, curr_led_bit_idx;
@@ -66,18 +68,6 @@ void drive_port_strips(void)
 }
 
 /**
-  * @brief  used to update the mask of the active GPIOs of the strips
-  * @param  which GPIO port should be updated
-  * @param  mask of all active strips belong to the GPIO port
-  *
-  * @retval void
-  */
-void update_GPIO_all_strips_mask(uint8_t port, uint16_t update_mask)
-{
-	GPIO_all_strips_mask[port] = update_mask;
-}
-
-/**
   * @brief  inner function used to clear old GPIO strips masks, before the update takes effect.
   * @param  void
   * @retval void
@@ -99,7 +89,7 @@ void zero_all_driver_masks(void)
   * @param  void
   * @retval void
   */
-void update_driver_mask(void)
+void update_driver_masks(void)
 {
 	int led_idx, rgb_idx, strip_idx;
 	zero_all_driver_masks();
@@ -128,3 +118,54 @@ void update_driver_mask(void)
 	}
 }
 
+/**
+  * @brief  inner function used to update the mask of the active GPIOs of the strips
+  * @param  which GPIO port should be updated
+  * @param  mask of all active strips belong to the GPIO port
+  *
+  * @retval void
+  */
+void update_GPIO_all_strips_mask(uint8_t port, uint16_t update_mask)
+{
+    GPIO_all_strips_mask[port] = update_mask;
+}
+
+/**
+  * @brief  main function that drives the strips, it should be called after the LED_strips db is updated with the new output.
+  *         all strips are updated on parallel.
+  * @param  void
+  * @retval void
+  */
+void drive_LED_strips(void)
+{
+    update_driver_masks();
+    drive_ws2812b_LED_strips_via_GPIO_ports();
+}
+
+/**
+  * @brief  Performs initialization of all strips and masks used by the multi strip driver.
+  *         Also drives cleared output to shut all active LEDs in strips.
+  * @param  void
+  * @retval void
+  */
+void init_LED_strips(void)
+{
+    uint8_t led_strip_idx;
+    uint16_t port_b_active_strips_mask = GPIO_PIN_NA, port_c_active_strips_mask = GPIO_PIN_NA;
+    for (led_strip_idx = 0; led_strip_idx<MAX_SUPPORTED_NUM_OF_STRIPS; led_strip_idx++)
+    {
+        if (strip_ports[led_strip_idx] == GPIO_PORT_B)
+        {
+            port_b_active_strips_mask |= strip_GPIOs[led_strip_idx];
+        }
+        else if (strip_ports[led_strip_idx] == GPIO_PORT_C)
+        {
+            port_c_active_strips_mask |= strip_GPIOs[led_strip_idx];
+        }
+    }
+    update_GPIO_all_strips_mask(GPIO_PORT_B, port_b_active_strips_mask);
+    update_GPIO_all_strips_mask(GPIO_PORT_C, port_c_active_strips_mask);
+
+
+    drive_LED_strips();
+}

@@ -9,6 +9,22 @@ extern volatile uint8_t LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LE
 volatile show_db_t shows[NUM_OF_SHOWS];
 
 /**
+  * @brief  initialize shows database.
+  * @param  void
+  * @retval void
+  */
+void init_shows(void)
+{
+	uint8_t i;
+	for (i=0; i<NUM_OF_SHOWS; i++)
+	{
+		shows[i].status = SHOW_STATUS_DISABLED;
+		shows[i].direction = REGULAR_DIRECTION;
+		shows[i].max_power = 100;
+	}
+}
+
+/**
   * @brief  snake show, runs colorful snakes through the LED strips.
   * @param  void
   * @retval void
@@ -20,9 +36,15 @@ void snake_show(void)
     uint32_t cycle_cntr=0;
     double percent_of_rgb[3]={0};
     uint8_t select_new_color = TRUE;
+    int8_t shut_down_seq_idx;
     uint16_t new_led_idx;
-    LD2_GPIO_Port->ODR |= LD2_Pin;
-    while (1)
+
+    //light up green led indication
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+
+    srand(SysTick->VAL);
+    while (shows[SHOWS_SNAKE].status == SHOW_STATUS_RUNNING)
     {
         for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
         {
@@ -33,18 +55,18 @@ void snake_show(void)
             {
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {
-                    LED_strips[strip_id][led_id][0] = LED_strips[0][led_id-1][0];
-                    LED_strips[strip_id][led_id][1] = LED_strips[0][led_id-1][1];
-                    LED_strips[strip_id][led_id][2] = LED_strips[0][led_id-1][2];
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id-1][GREEN];
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id-1][RED];
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id-1][BLUE];
                 }
             }
             else
             {
-                for (led_id=0; led_id!=(MAX_LEDS_IN_STRIP-1); led_id++)
+                for (led_id=0; led_id<(MAX_LEDS_IN_STRIP-1); led_id++)
                 {
-                    LED_strips[strip_id][led_id][0] = LED_strips[0][led_id+1][0];
-                    LED_strips[strip_id][led_id][1] = LED_strips[0][led_id+1][1];
-                    LED_strips[strip_id][led_id][2] = LED_strips[0][led_id+1][2];
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id+1][GREEN];
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id+1][RED];
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE];
                 }
             }
             /* choose new random color for every new snake */
@@ -73,10 +95,9 @@ void snake_show(void)
                 LED_strips[strip_id][new_led_idx][BLUE] = 0;
             }
         }
-        update_driver_mask();
-        drive_port_strips();
-        HAL_Delay(30);
-        if (cycle_cntr==40)
+        drive_LED_strips();
+        HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+        if (cycle_cntr==SNAKE_SHOW_CYCLE_LENGTH)
         {
             cycle_cntr = 0;
             select_new_color = TRUE;
@@ -86,5 +107,40 @@ void snake_show(void)
             cycle_cntr++;
         }
     }
+
+    /* snake shut down sequence */
+    for (shut_down_seq_idx=SNAKE_SHOW_NUM_OF_DIM_STEPS; shut_down_seq_idx>=0; shut_down_seq_idx--)
+    {
+        for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+        {
+            /* go over the strip and move every LED one hop according to the direction + perform dimming out */
+            /* For regular direction go from last led to the first and move state of led-1 to led_id*/
+            /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
+            double dim_percentage = (double)shut_down_seq_idx / SNAKE_SHOW_NUM_OF_DIM_STEPS;
+            if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+            {
+                for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
+                {
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id-1][GREEN] * dim_percentage;
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id-1][RED]   * dim_percentage;
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id-1][BLUE]  * dim_percentage;
+                }
+            }
+            else
+            {
+                for (led_id=0; led_id<(MAX_LEDS_IN_STRIP-1); led_id++)
+                {
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id+1][GREEN] * dim_percentage;
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id+1][RED]   * dim_percentage;
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE]  * dim_percentage;
+                }
+            }
+        }
+        drive_LED_strips();
+        HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+    }
+    shows[SHOWS_SNAKE].status = SHOW_STATUS_DISABLED;
+    //turn off green led indication
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 }
 

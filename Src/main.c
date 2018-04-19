@@ -54,6 +54,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 extern volatile show_db_t shows[NUM_OF_SHOWS];
+show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show, NULL, NULL, NULL};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,6 +70,25 @@ static void MX_NVIC_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+/**
+  * @brief  EXTI line detection callbacks. This function takes care of GPIOs changing states like the blue button.
+  * @param  GPIO_Pin Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin==B1_Pin)
+    {
+        if (shows[SHOWS_SNAKE].status == SHOW_STATUS_DISABLED)
+        {
+            shows[SHOWS_SNAKE].status = SHOW_STATUS_START;
+        }
+        else if (shows[SHOWS_SNAKE].status == SHOW_STATUS_RUNNING)
+        {
+            shows[SHOWS_SNAKE].status = SHOW_STATUS_STOP;
+        }
+    }
+}
 
 /* USER CODE END 0 */
 
@@ -107,9 +127,8 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  //TODO - update function to extract the GPIOs according to the strip db
-  update_GPIO_all_strips_mask(GPIO_PORT_C, (GPIO_PIN_0  | GPIO_PIN_1  | GPIO_PIN_2  | GPIO_PIN_3));
-  update_GPIO_all_strips_mask(GPIO_PORT_B, (GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15));
+  init_LED_strips();
+  init_shows();
   shows[SHOWS_SNAKE].direction = REVERSE_DIRECTION;
   shows[SHOWS_SNAKE].max_power = 50;
   /* USER CODE END 2 */
@@ -118,11 +137,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      uint8_t show_idx;
 
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-     snake_show();
+      for (show_idx=0; show_idx<NUM_OF_SHOWS; show_idx++)
+      {
+          if (shows[show_idx].status == SHOW_STATUS_START)
+          {
+              shows[show_idx].status = SHOW_STATUS_RUNNING;
+              shows_cb_functions[show_idx]();
+          }
+      }
   }
   /* USER CODE END 3 */
 
@@ -340,6 +367,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
