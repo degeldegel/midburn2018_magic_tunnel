@@ -130,7 +130,6 @@ int main(void)
   init_LED_strips();
   init_shows();
   shows[SHOWS_SNAKE].direction = REVERSE_DIRECTION;
-  shows[SHOWS_SNAKE].max_power = 50;
   /* USER CODE END 2 */
 
   /* Infinite loop */

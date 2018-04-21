@@ -20,7 +20,7 @@ void init_shows(void)
 	{
 		shows[i].status = SHOW_STATUS_DISABLED;
 		shows[i].direction = REGULAR_DIRECTION;
-		shows[i].max_power = 100;
+		shows[i].max_power = 60;
 	}
 }
 
@@ -33,7 +33,7 @@ void snake_show(void)
 {
     volatile int led_id, strip_id;
 
-    uint32_t cycle_cntr=0;
+    uint32_t cycle_cntr=0, startup_cycle_cntr=0;
     double percent_of_rgb[3]={0};
     uint8_t select_new_color = TRUE;
     int8_t shut_down_seq_idx;
@@ -80,10 +80,10 @@ void snake_show(void)
             }
             /* update the first led, the only one that wasn't updated till now */
             new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
-            if (cycle_cntr<8)
+            if (cycle_cntr<SNAKE_SHOW_SNAKE_LENGTH)
             {
-                uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == 7)) ? 50 :
-                                ((cycle_cntr == 1) || (cycle_cntr == 6)) ? 100 : 200;
+                uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (SNAKE_SHOW_SNAKE_LENGTH-1))) ? 50 :
+                                ((cycle_cntr == 1) || (cycle_cntr == (SNAKE_SHOW_SNAKE_LENGTH-2))) ? 100 : 200;
                 LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, power);
                 LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, power);
                 LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, power);
@@ -95,8 +95,17 @@ void snake_show(void)
                 LED_strips[strip_id][new_led_idx][BLUE] = 0;
             }
         }
-        drive_LED_strips();
-        HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+        if (SNAKE_SHOW_PERFORM_STRATUP_SEQ && (startup_cycle_cntr < SNAKE_SHOW_STARTUP_SEQ_END_CYCLE))
+        {
+            /* startup sequence - run the loop without delay and driving the led strips */
+            startup_cycle_cntr++;
+        }
+        else
+        {
+            /* regular cycle drive leds and wait refresh time */
+            drive_LED_strips();
+            HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+        }
         if (cycle_cntr==SNAKE_SHOW_CYCLE_LENGTH)
         {
             cycle_cntr = 0;
@@ -135,6 +144,10 @@ void snake_show(void)
                     LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE]  * dim_percentage;
                 }
             }
+            new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
+            LED_strips[strip_id][new_led_idx][GREEN] = 0;
+            LED_strips[strip_id][new_led_idx][RED] = 0;
+            LED_strips[strip_id][new_led_idx][BLUE] = 0;
         }
         drive_LED_strips();
         HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
