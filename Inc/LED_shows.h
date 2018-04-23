@@ -53,7 +53,7 @@ typedef struct show_db
 /* ==  MACROS == */
 /* =========================================================================================== */
 
-#define SET_POWER(show, power) (uint8_t)(((double)(shows[show].max_power)/100)*power)
+#define GET_POWER(show, power) (uint8_t)(((double)(shows[show].max_power)/100)*power)
 
 /* =========================================================================================== */
 /* ==  EXTERNAL FUNCTIONS== */
