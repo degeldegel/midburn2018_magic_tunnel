@@ -56,6 +56,7 @@ void snake_show(void)
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {
                     LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id-1][GREEN];
+
                     LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id-1][RED];
                     LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id-1][BLUE];
                 }
