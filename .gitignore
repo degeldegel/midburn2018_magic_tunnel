@@ -5,3 +5,9 @@
 \.settings/org\.eclipse\.cdt\.managedbuilder\.core\.prefs
 
 midburn2018_magic_tunnel\.elf\.launch
+midburn2018_magic_tunnel_emul/.settings/org.eclipse.cdt.managedbuilder.core.prefs
+midburn2018_magic_tunnel_emul/LED_Emul_output.txt
+midburn2018_magic_tunnel_emul/Debug/midburn2018_magic_tunnel_emul.exe
+midburn2018_magic_tunnel_emul/Debug/src/LED_shows.o
+midburn2018_magic_tunnel_emul/Debug/src/main.o
+midburn2018_magic_tunnel_emul/Debug/src/ws2812b_multi_strip_driver.o
