@@ -11,7 +11,7 @@
 #define NUM_OF_CFG_BYTES_PER_LED (3)
 #define BITS_TO_CONFIGURE_ONE_LED (24)
 #define MAX_LEDS_IN_STRIP (300)
-#define MAX_ACTIVE_STRIPS (8)
+#define MAX_ACTIVE_STRIPS (18) /*for emulator only (this will be the real number of strips in midburn) */
 #define BITS_IN_BYTE (8)
 #define GPIO_PORT_B (0)
 #define GPIO_PORT_C (1)

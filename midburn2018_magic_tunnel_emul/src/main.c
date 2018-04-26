@@ -32,11 +32,11 @@ int main(void){
 
     SysTick = &SysTick_s;/* for code consistency of emulation and operatinal code */
     printf("LED emulator program started!\n");
-    printf("LED emulator is generating data, this might take a minute, please wait...");
+    printf("LED emulator is generating data, this might take a minute, please wait...\n");
     fflush(stdout);
 
     init_shows();
-
+    shows[SHOWS_SNAKE].max_power = 100; /*to see it beter in the emulator*/
     shows[SHOWS_SNAKE].status = SHOW_STATUS_RUNNING;
     snake_show();
     printf("LED emulator program finished successfully!\n");
