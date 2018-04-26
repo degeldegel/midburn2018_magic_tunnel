@@ -30,7 +30,7 @@ void stop_all_shows()
   */
 void drive_LED_strips(void)
 {
-    #define MAX_LED_DRIVER_CNTR (1000)
+    #define MAX_LED_DRIVER_CNTR (500)
     FILE *pfile;
     unsigned strip_id, led_id;
 
