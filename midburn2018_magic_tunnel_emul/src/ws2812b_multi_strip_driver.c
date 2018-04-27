@@ -1,3 +1,4 @@
+#include "stm32f4xx_hal.h"
 #include "ws2812b_multi_strip_driver.h"
 #include "LED_shows.h"
 #include "stdio.h"

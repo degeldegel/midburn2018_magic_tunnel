@@ -19,14 +19,6 @@
 #define GPIO_PIN_NA ((uint16_t)0x0000)
 #define LED_MAX_POWER (150)
 
-/* typedefs for emulator */
-typedef unsigned uint8_t;
-typedef unsigned uint16_t;
-typedef unsigned uint32_t;
-typedef int int8_t;
-typedef int int16_t;
-typedef int int32_t;
-
 /* emulator of systick */
 typedef struct _systick_emul {
         unsigned VAL;
