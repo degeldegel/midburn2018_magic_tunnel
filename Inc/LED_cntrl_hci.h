@@ -64,5 +64,6 @@ typedef struct _hci_show_config_pckt
 /* ==  EXTERNAL FUNCTIONS== */
 /* =========================================================================================== */
 
+void init_HCI_UART(UART_HandleTypeDef *huart);
 
 #endif  /* _LED_CNTRL_HCI_H */

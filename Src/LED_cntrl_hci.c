@@ -7,7 +7,6 @@
 uint8_t          uart_hci_buffer[SIZE_OF_HCI_BUFFER];
 hci_uart_state_e uart_hci_state;
 
-extern UART_HandleTypeDef huart2;
 extern volatile show_db_t shows[NUM_OF_SHOWS];
 
 uint8_t handle_new_hci_command()
@@ -62,12 +61,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             while(1){};
         }
         uart_hci_state = HCI_UART_STATE_WAIT_FOR_HEADER;
-        HAL_UART_Receive_IT(&huart2, &uart_hci_buffer[HCI_PCKT_SYNC_WORD], HCI_PCKT_HEADER_SIZE);
+        HAL_UART_Receive_IT(huart, &uart_hci_buffer[HCI_PCKT_SYNC_WORD], HCI_PCKT_HEADER_SIZE);
     }
     else
     {
         uart_hci_state = HCI_UART_STATE_WAIT_FOR_REST;
-        HAL_UART_Receive_IT(&huart2, &uart_hci_buffer[HCI_PCKT_DATA0], size_left);
+        HAL_UART_Receive_IT(huart, &uart_hci_buffer[HCI_PCKT_DATA0], size_left);
     }
 
+}
+
+void init_HCI_UART(UART_HandleTypeDef *huart)
+{
+    uart_hci_state = HCI_UART_STATE_WAIT_FOR_HEADER;
+    HAL_UART_Receive_IT(huart, &uart_hci_buffer[HCI_PCKT_SYNC_WORD], HCI_PCKT_HEADER_SIZE);
 }

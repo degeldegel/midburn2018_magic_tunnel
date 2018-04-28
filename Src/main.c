@@ -44,6 +44,7 @@
 #include "ws2812b_multi_strip_driver.h"
 #include "LED_shows.h"
 #include "stdio.h"
+#include "LED_cntrl_hci.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -130,6 +131,7 @@ int main(void)
   init_LED_strips();
   init_shows();
   shows[SHOWS_SNAKE].direction = REVERSE_DIRECTION;
+  init_HCI_UART(&huart2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
