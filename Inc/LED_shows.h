@@ -49,6 +49,16 @@ typedef struct show_db
     uint8_t max_power;
 } show_db_t;
 
+typedef struct snake_show_db
+{ /* for flash perposes needs to be 32 bit aligned */
+    uint8_t refresh_time; /* refresh rate in cycle time [milisec] */
+    uint8_t fade_out_steps; /* how many fade out dsteps to perform on shut down */
+    uint8_t perform_startup_seq; /* 0x0 - no startup, snakes starting to run from beggining of strip; 0x1 - startup performed and whole strip is filled with snakes at the beginning */
+    uint8_t snake_length; /* length of snake in a cycle --> cycle_length=100 and snake_length=50 --> on a 300 led strip there will be three snakes of 50 leds each */
+    uint16_t cycle_length; /* length of snake and turned off area --> if cycle_length equals 100 in a 300 led strip it means only three snake will appear (max value = 255) */
+    uint16_t starup_seq_end_cycle; /* for how long to run the startup sequence before starting regular */
+} snake_show_db_t;
+
 /* =========================================================================================== */
 /* ==  MACROS == */
 /* =========================================================================================== */

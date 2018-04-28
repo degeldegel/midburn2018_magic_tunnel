@@ -11,3 +11,5 @@ midburn2018_magic_tunnel_emul/Debug/midburn2018_magic_tunnel_emul.exe
 midburn2018_magic_tunnel_emul/Debug/src/LED_shows.o
 midburn2018_magic_tunnel_emul/Debug/src/main.o
 midburn2018_magic_tunnel_emul/Debug/src/ws2812b_multi_strip_driver.o
+phyton_project_hci_controller/project_hci_controller/__pycache__/
+midburn2018_magic_tunnel_emul/.settings/language.settings.xml

@@ -45,6 +45,7 @@
 #include "LED_shows.h"
 #include "stdio.h"
 #include "LED_cntrl_hci.h"
+#include "flash.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -132,6 +133,16 @@ int main(void)
   init_shows();
   shows[SHOWS_SNAKE].direction = REVERSE_DIRECTION;
   init_HCI_UART(&huart2);
+  snake_show_db_t snake_db_wr, snake_db_rd;
+  snake_db_wr.cycle_length = SNAKE_SHOW_CYCLE_LENGTH;
+  snake_db_wr.fade_out_steps = SNAKE_SHOW_NUM_OF_DIM_STEPS;
+  snake_db_wr.perform_startup_seq = SNAKE_SHOW_PERFORM_STRATUP_SEQ;
+  snake_db_wr.refresh_time = SNAKE_SHOW_REFRESH_TIME;
+  snake_db_wr.snake_length = SNAKE_SHOW_SNAKE_LENGTH;
+  snake_db_wr.starup_seq_end_cycle = SNAKE_SHOW_STARTUP_SEQ_END_CYCLE;
+  //flashStore((uint32_t*)&snake_db_wr, DATA_FLASH_START_ADDR, sizeof(snake_db_wr));
+  flashLoad((uint32_t*)&snake_db_rd, DATA_FLASH_START_ADDR, sizeof(snake_db_rd));
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
