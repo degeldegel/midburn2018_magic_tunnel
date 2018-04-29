@@ -18,6 +18,8 @@
 #define SNAKE_SHOW_PERFORM_STRATUP_SEQ   (1)
 #define SNAKE_SHOW_STARTUP_SEQ_END_CYCLE (300)
 
+#define TEDDY_BEAR_CYCLE_LENGTH (40)
+#define TEDDY_BEAR_SNAKE_LENGTH (37)
 /* =========================================================================================== */
 /* ==  ENUMS == */
 /* =========================================================================================== */
@@ -25,7 +27,7 @@
 typedef enum _shows
 {
     SHOWS_SNAKE     = 0,
-    SHOWS_RESERVED0 = 1,
+    SHOWS_TEDDY_BEAR = 1,
     SHOWS_RESERVED1 = 2,
     SHOWS_RESERVED2 = 3
 } show_id_e;
