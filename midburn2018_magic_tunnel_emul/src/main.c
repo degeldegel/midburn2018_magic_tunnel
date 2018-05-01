@@ -38,8 +38,12 @@ int main(void){
 
     init_shows();
     shows[SHOWS_SNAKE].max_power = 100; /*to see it beter in the emulator*/
-    shows[SHOWS_SNAKE].status = SHOW_STATUS_RUNNING;
-    snake_show();
+    //shows[SHOWS_SNAKE].status = SHOW_STATUS_RUNNING;
+    //snake_show();
+
+    shows[SHOWS_COMET].max_power = 200; /*to see it beter in the emulator*/
+    shows[SHOWS_COMET].status = SHOW_STATUS_RUNNING;
+    CometShow();
     printf("LED emulator program finished successfully!\n");
 	return 0;
 }

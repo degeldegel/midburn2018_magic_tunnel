@@ -25,7 +25,7 @@
 typedef enum _shows
 {
     SHOWS_SNAKE     = 0,
-    SHOWS_RESERVED0 = 1,
+    SHOWS_COMET     = 1,
     SHOWS_RESERVED1 = 2,
     SHOWS_RESERVED2 = 3
 } show_id_e;
@@ -72,6 +72,21 @@ typedef void (*show_cb_function)(void);
   * @retval void
   */
 void snake_show(void);
+
+/**
+  * @brief  comet show, stars, comet and explosion.
+  * @param  void
+  * @retval void
+  */
+void CometShow(void);
+
+/**
+  * @brief  TwinklingStars - stars shining and dimming down.
+  * @param  void
+  * @retval void
+  */
+void TwinklingStars(void);
+
 
 /**
   * @brief  initialize shows database.

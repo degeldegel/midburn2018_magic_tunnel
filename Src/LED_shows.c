@@ -1,8 +1,10 @@
 #include "stm32f4xx_hal.h"
 #include "ws2812b_multi_strip_driver.h"
 #include "LED_shows.h"
+#include "stdio.h"
 #include "stdlib.h"
 #include "flash.h"
+
 
 /* user interface db, the user fills up this array according to LED strip id and led number,
  * the driver will push the LED strips according to this db */
@@ -363,3 +365,95 @@ void teady_bear(void)
         }
     }
 }
+
+void CometShow(void)
+{
+	TwinklingStars();
+//	CometDrop();
+//	CometExplosion();
+
+	//turn off green led indication
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+	shows[SHOWS_COMET].status = SHOW_STATUS_DISABLED;
+}
+
+void TwinklingStars(void)
+{
+    volatile int led_id, strip_id;
+    int8_t shut_down_seq_idx;
+    // twinkle cycle time
+    volatile int cycle_length = 20;
+
+    uint8_t step_size = shows[SHOWS_COMET].max_power * 2 / cycle_length;
+    // probability for each led to start the twinkle
+    volatile double twinkle_probabilty = 5;
+
+    //light up green led indication
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+
+    srand(SysTick->VAL);
+    while (shows[SHOWS_COMET].status == SHOW_STATUS_RUNNING)
+    {
+    	for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+    	{
+    		for (led_id=0; led_id<(MAX_LEDS_IN_STRIP-1); led_id++)
+    		{
+    			if (LED_strips[strip_id][led_id][GREEN] == 0)  // if the led is off
+    			{
+    				if (twinkle_probabilty >= (double)(rand()%100000))  // start shining
+    				{
+    					LED_strips[strip_id][led_id][GREEN] = step_size + 1;
+						LED_strips[strip_id][led_id][RED] =   step_size;
+						LED_strips[strip_id][led_id][BLUE] =  step_size;
+    				}
+    			}
+    			else
+    			{
+    				if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] < shows[SHOWS_COMET].max_power)) // rising
+    				{
+    					LED_strips[strip_id][led_id][GREEN] +=  step_size;
+						LED_strips[strip_id][led_id][RED]   +=  step_size;
+						LED_strips[strip_id][led_id][BLUE]  +=  step_size;
+    				}
+    				else if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] >= shows[SHOWS_COMET].max_power)) //at max
+    				{
+    					LED_strips[strip_id][led_id][GREEN] -= (step_size + 1);
+						LED_strips[strip_id][led_id][RED]   -= step_size;
+						LED_strips[strip_id][led_id][BLUE]  -= step_size;
+    				}
+    				else  //falling
+    				{
+    					LED_strips[strip_id][led_id][GREEN] = (LED_strips[strip_id][led_id][GREEN] > step_size) ? (LED_strips[strip_id][led_id][GREEN] - step_size) : 0;
+						LED_strips[strip_id][led_id][RED] =   (LED_strips[strip_id][led_id][RED] > step_size) ? (LED_strips[strip_id][led_id][RED] - step_size) : 0;
+						LED_strips[strip_id][led_id][BLUE] =  (LED_strips[strip_id][led_id][BLUE] > step_size) ? (LED_strips[strip_id][led_id][BLUE] - step_size) : 0;
+    				}
+    			}
+    		}
+    	}
+    drive_LED_strips();
+    HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+    }
+    // stars shut down sequence
+    for (shut_down_seq_idx=SNAKE_SHOW_NUM_OF_DIM_STEPS; shut_down_seq_idx>=0; shut_down_seq_idx--)
+    {
+        for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+        {
+            /* go over the strip and move every LED one hop according to the direction + perform dimming out */
+            /* For regular direction go from last led to the first and move state of led-1 to led_id*/
+            /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
+            double dim_percentage = (double)shut_down_seq_idx / SNAKE_SHOW_NUM_OF_DIM_STEPS;
+            for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
+            {
+                LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id][GREEN] * dim_percentage;
+                LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id][RED]   * dim_percentage;
+                LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id][BLUE]  * dim_percentage;
+            }
+            LED_strips[strip_id][0][GREEN] = 0;
+            LED_strips[strip_id][0][RED] = 0;
+            LED_strips[strip_id][0][BLUE] = 0;
+        }
+        drive_LED_strips();
+        HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+    }
+}
+
