@@ -47,7 +47,7 @@ void drive_ws2812b_LED_strips_via_GPIO_ports(void)
 		GPIOB->ODR |=  GPIO_all_strips_mask[GPIO_PORT_B];
 		GPIOC->ODR |=  GPIO_all_strips_mask[GPIO_PORT_C];
 		//wait for strips with bit value zero
-		for (i=0; i < 7; i++) {idx=i;}
+		for (i=0; i < 10; i++) {idx=i;}
 		//lower all strips with bit value zero
 		curr_zero_mask[GPIO_PORT_B] = GPIO_strips_mask[GPIO_PORT_B][curr_led_bit_idx];
 		curr_zero_mask[GPIO_PORT_C] = GPIO_strips_mask[GPIO_PORT_C][curr_led_bit_idx];
@@ -55,13 +55,13 @@ void drive_ws2812b_LED_strips_via_GPIO_ports(void)
 		GPIOB->ODR &= ~curr_zero_mask[GPIO_PORT_B];
 		GPIOC->ODR &= ~curr_zero_mask[GPIO_PORT_C];
 		//wait for strips with bit value one
-		for (i=0; i < 13; i++) {idx=i;}
+		for (i=0; i < 14; i++) {idx=i;}
 		//lower all strips with bit value zero
 		//systick_val[2] = SysTick->VAL;
 		GPIOB->ODR &= ~(curr_zero_mask[GPIO_PORT_B] ^ GPIO_all_strips_mask[GPIO_PORT_B]);
 		GPIOC->ODR &= ~(curr_zero_mask[GPIO_PORT_C] ^ GPIO_all_strips_mask[GPIO_PORT_C]);
 		//finish bit configuration cycle ~1.25 msec
-		for (i=0; i < 7; i++) {idx=i;}
+		for (i=0; i < 10; i++) {idx=i;}
 		//systick_val[3] = SysTick->VAL;
 	}
 	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
