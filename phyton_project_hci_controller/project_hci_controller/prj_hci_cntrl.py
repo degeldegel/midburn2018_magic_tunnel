@@ -20,19 +20,20 @@ class ConUI():
         # Menu definition
         self.menu_actions = {
             'main_menu': self.main_menu,
-            '1': self.configShow,
-            '2': self.menu2,
-            'q': self.exit,
+            '1': self.configShowMenu,
+            '2': self.configSnakeShowMenu,
+            'q': self.exit
         }
+        
  
     # Main menu function - main loop of consule UI
     def main_menu(self):
         dontQuit = True 
         while (dontQuit == True):
-            os.system('clear')
+            #os.system('clear')
             print("Welcome To the project HCI controller UI\n")
             print("Please choose the menu you want to start:")
-            print("1. Configure show")
+            print("1. Configure show P&D")
             print("2. Configure snake show")
             print("3. save configuration to flash")
             print("q. Quit")
@@ -43,10 +44,11 @@ class ConUI():
                     if (choice =='q'):
                         dontQuit = False
                         choiceOK = True
-                    elif (int(choice) < 0) or (int(choice) > 3):
-                        print("invalid choise!")
-                    else:
+                    elif (int(choice) > 0) and (int(choice) < 4):
                         choiceOK = True
+                    else:
+                        print("invalid choise!")
+                        
                 except:
                     print("invalid choise!")
             self.exec_menu(choice)
@@ -54,7 +56,7 @@ class ConUI():
     
     # Execute menu
     def exec_menu(self, choice):
-        os.system('clear')
+        #os.system('clear')
         ch = choice.lower()
         try:
             self.menu_actions[ch]()
@@ -64,7 +66,28 @@ class ConUI():
             input("please enter any key to continue")
     
     # configure show HCI command IF
-    def configShow(self):
+    def configShowMenu(self):
+        print("1. Configure Power and direction")
+        print("2. Configure Power only")
+        print("b. Back")
+        choiceOK = False
+        while (choiceOK == False):
+            try:        
+                choice = input("please enter your choice>> ")
+                if (choice =='b'):
+                    choiceOK = True
+                elif (int(choice) == 1):
+                    choiceOK = True
+                    self.configShow(False)
+                elif (int(choice) == 2):
+                    choiceOK = True
+                    self.configShow(True)                    
+                else:
+                    print("invalid choise!")
+            except:
+                print("invalid choise!!")
+
+    def configShow(self, powerOnly):
         print("Configure show HCI")
         print("==================\n")
         print("list of available shows:")
@@ -93,40 +116,58 @@ class ConUI():
             except:
                 print("invalid choise!")
         print()
-        choiceOK = False
-        while (choiceOK == False):
-            try:        
-                maxPower = input("please enter max power (0-100), press b for back>> ")
-                if (maxPower =='b'):
-                    return
-                elif (int(maxPower) < 0) or (int(maxPower) > 100):
+        dontQuit = True
+        while (dontQuit == True):
+            choiceOK = False
+            while (choiceOK == False):
+                try:        
+                    maxPower = input("please enter max power (0-100), press b for back>> ")
+                    if (maxPower =='b'):
+                        return
+                    elif (int(maxPower) < 0) or (int(maxPower) > 100):
+                        print("invalid choise!")
+                    else:
+                        choiceOK = True
+                except:
                     print("invalid choise!")
-                else:
-                    choiceOK = True
-            except:
-                print("invalid choise!")
-        print("\nplease choose direction of show")
-        print("0. Regular direction")
-        print("1. reversed direction")
-        print("b. Back")
-        choiceOK = False
-        while (choiceOK == False):
-            try:        
-                direction = input("please enter you choice>> ")
-                if (direction =='b'):
-                    return
-                elif (int(direction) < 0) or (int(direction) > 1):
+            if (powerOnly == False):
+                print("\nplease choose direction of show")
+                print("0. Regular direction")
+                print("1. reversed direction")
+                print("2. don't change direction")
+                print("b. Back")
+                choiceOK = False
+                while (choiceOK == False):
+                    try:        
+                        direction = input("please enter you choice>> ")
+                        if (direction =='b'):
+                            return
+                        elif (int(direction) < 0) or (int(direction) > 2):
+                            print("invalid choise!")
+                        else:
+                            choiceOK = True
+                    except:
+                        print("invalid choise!")
+            else:
+                direction = 2 #Dont change
+            self.uartHciAgent.sendConfigshow(int(showId), int(maxPower), int(direction))
+            choiceOK = False
+            while (choiceOK == False):
+                try:        
+                    choice = input("configure again? [y/n]>> ")
+                    if ((choice =='y') or (choice =='n')):
+                        if (choice == 'n'):
+                            dontQuit = False
+                        choiceOK = True
+                    else:
+                        print("invalid choise!")
+                except:
                     print("invalid choise!")
-                else:
-                    choiceOK = True
-            except:
-                print("invalid choise!")
-        self.uartHciAgent.sendConfigshow(int(showId), int(maxPower), int(direction))
         return
 
 
     # Menu 2
-    def menu2(self):
+    def configSnakeShowMenu(self):
         print ("Hello Menu 2 !\n")
         print ("9. Back")
         print ("0. Quit") 

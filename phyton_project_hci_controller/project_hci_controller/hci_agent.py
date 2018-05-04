@@ -48,9 +48,10 @@ class hciAgent():
         self.sendCommand([SYNCWORD, 0x1, 0x3, showID, maxPower, direction]) 
     
     def sendCommand(self, cmd):
-        print(self.hciComPort)
-        print(cmd)
-        sizeWritten = self.hciComPort.write(cmd)
-        print("number of bytes written is", sizeWritten)
-        input("please enter any key to continue>>")
+        #print(self.hciComPort)
+        #print(cmd)
+        #sizeWritten = self.hciComPort.write(cmd)
+        #print("number of bytes written is", sizeWritten)
+        #input("please enter any key to continue>>")
+        self.hciComPort.write(cmd)
         
