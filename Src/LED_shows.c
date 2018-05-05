@@ -143,7 +143,7 @@ void snake_show(void)
             }
             /* update the first led, the only one that wasn't updated till now */
             new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
-            if (cycle_cntr<config_db.snake.snake_length)
+            if (cycle_cntr < config_db.snake.snake_length)
             {
                 uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (config_db.snake.snake_length-1))) ? 50 :
                                 ((cycle_cntr == 1) || (cycle_cntr == (config_db.snake.snake_length-2))) ? 100 : 200;
@@ -169,7 +169,7 @@ void snake_show(void)
             drive_LED_strips();
             HAL_Delay(config_db.snake.refresh_time);
         }
-        if (cycle_cntr==config_db.snake.cycle_length)
+        if (cycle_cntr >= (config_db.snake.cycle_length-1))
         {
             cycle_cntr = 0;
             select_new_color = TRUE;
