@@ -18,6 +18,8 @@
 #define SNAKE_SHOW_PERFORM_STRATUP_SEQ   (1)
 #define SNAKE_SHOW_STARTUP_SEQ_END_CYCLE (300)
 
+#define METEOR_LENGTH (37)
+
 /* =========================================================================================== */
 /* ==  ENUMS == */
 /* =========================================================================================== */
@@ -25,7 +27,7 @@
 typedef enum _shows
 {
     SHOWS_SNAKE     = 0,
-    SHOWS_COMET     = 1,
+    SHOWS_METEOR     = 1,
     SHOWS_RESERVED1 = 2,
     SHOWS_RESERVED2 = 3
 } show_id_e;
@@ -78,7 +80,7 @@ void snake_show(void);
   * @param  void
   * @retval void
   */
-void CometShow(void);
+void MeteorShow(void);
 
 /**
   * @brief  TwinklingStars - stars shining and dimming down.
@@ -87,6 +89,12 @@ void CometShow(void);
   */
 void TwinklingStars(void);
 
+/**
+  * @brief  MeteorDrop - Meteor falling.
+  * @param  void
+  * @retval void
+  */
+void MeteorDrop(void);
 
 /**
   * @brief  initialize shows database.

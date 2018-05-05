@@ -41,9 +41,9 @@ int main(void){
     //shows[SHOWS_SNAKE].status = SHOW_STATUS_RUNNING;
     //snake_show();
 
-    shows[SHOWS_COMET].max_power = 200; /*to see it beter in the emulator*/
-    shows[SHOWS_COMET].status = SHOW_STATUS_RUNNING;
-    CometShow();
+    shows[SHOWS_METEOR].max_power = 200; /*to see it beter in the emulator*/
+    shows[SHOWS_METEOR].status = SHOW_STATUS_RUNNING;
+    MeteorShow();
     printf("LED emulator program finished successfully!\n");
 	return 0;
 }

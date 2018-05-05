@@ -34,6 +34,32 @@ int teddy_bear[MAX_SUPPORTED_NUM_OF_STRIPS][TEDDY_BEAR_SNAKE_LENGTH] =
         {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0}
 };
 
+volatile double percent_of_rgb[3]={0};
+volatile uint32_t cycle_cntr=0, startup_cycle_cntr=0;
+volatile uint8_t select_new_color = TRUE;
+
+int meteor[MAX_SUPPORTED_NUM_OF_STRIPS][METEOR_LENGTH] =
+{
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,2,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,2,1,1,3,3,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0},
+    {0,2,1,1,3,3,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,0,0,0,0,0,0,0,0},
+    {0,2,1,1,1,1,1,1,2,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+};
+
 /**
   * @brief  initialize shows database.
   * @param  void
@@ -366,15 +392,18 @@ void teady_bear(void)
     }
 }
 
-void CometShow(void)
+void MeteorShow(void)
 {
-	TwinklingStars();
-//	CometDrop();
-//	CometExplosion();
+
+    srand(SysTick->VAL);
+
+//	TwinklingStars();
+	MeteorDrop();
+//	MeteorExplosion();
 
 	//turn off green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	shows[SHOWS_COMET].status = SHOW_STATUS_DISABLED;
+	shows[SHOWS_METEOR].status = SHOW_STATUS_DISABLED;
 }
 
 void TwinklingStars(void)
@@ -382,17 +411,15 @@ void TwinklingStars(void)
     volatile int led_id, strip_id;
     int8_t shut_down_seq_idx;
     // twinkle cycle time
-    volatile int cycle_length = 20;
+    volatile int cycle_length = 30;
 
-    uint8_t step_size = shows[SHOWS_COMET].max_power * 2 / cycle_length;
+    uint8_t step_size = shows[SHOWS_METEOR].max_power * 2 / cycle_length;
     // probability for each led to start the twinkle
-    volatile double twinkle_probabilty = 5;
+    volatile double twinkle_probabilty = 10;
 
     //light up green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-
-    srand(SysTick->VAL);
-    while (shows[SHOWS_COMET].status == SHOW_STATUS_RUNNING)
+    while (shows[SHOWS_METEOR].status == SHOW_STATUS_RUNNING)
     {
     	for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
     	{
@@ -409,13 +436,13 @@ void TwinklingStars(void)
     			}
     			else
     			{
-    				if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] < shows[SHOWS_COMET].max_power)) // rising
+    				if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] < shows[SHOWS_METEOR].max_power)) // rising
     				{
     					LED_strips[strip_id][led_id][GREEN] +=  step_size;
 						LED_strips[strip_id][led_id][RED]   +=  step_size;
 						LED_strips[strip_id][led_id][BLUE]  +=  step_size;
     				}
-    				else if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] >= shows[SHOWS_COMET].max_power)) //at max
+    				else if ((LED_strips[strip_id][led_id][GREEN] > LED_strips[strip_id][led_id][RED]) && (LED_strips[strip_id][led_id][GREEN] >= shows[SHOWS_METEOR].max_power)) //at max
     				{
     					LED_strips[strip_id][led_id][GREEN] -= (step_size + 1);
 						LED_strips[strip_id][led_id][RED]   -= step_size;
@@ -454,6 +481,121 @@ void TwinklingStars(void)
         }
         drive_LED_strips();
         HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+    }
+}
+
+void MeteorDrop(void)
+{
+    volatile int led_id, strip_id;
+    int8_t shut_down_seq_idx;
+
+
+    //light up green led indication
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    while (shows[SHOWS_METEOR].status == SHOW_STATUS_RUNNING)
+    {
+
+	  for (int strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+	  {
+	    // go over the strip and move every LED one hop according to the direction
+	    // For regular direction go from last led to the first and move state of led-1 to led_id
+	    // For reverse direction go from the first to the last and move state of led_id+1 to led_id
+	    if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+	    {
+	      for (int led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
+	      {
+	        LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id-1][GREEN];
+	        LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id-1][RED];
+	        LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id-1][BLUE];
+	      }
+	    }
+	    else
+	    {
+	      for (int led_id=0; led_id<(MAX_LEDS_IN_STRIP-1); led_id++)
+	      {
+	        LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id+1][GREEN];
+	        LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id+1][RED];
+	        LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE];
+	      }
+	    }
+
+	    // update the first led, the only one that wasn't updated till now
+	    uint16_t new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP - 1;
+
+	    if (cycle_cntr < METEOR_LENGTH)
+	    {
+	      double percent_of_rgb[3]={0};
+	      //uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (MAX_TEDDY_BEAR_LENGTH-1))) ? 50 :
+	      //        ((cycle_cntr == 1) || (cycle_cntr == (MAX_TEDDY_BEAR_LENGTH-2))) ? 100 : 200;
+
+	      if (meteor[strip_id][cycle_cntr] == 1)
+	      {
+	        percent_of_rgb[GREEN] = 1.0f;
+	        percent_of_rgb[RED] = 1.0f;
+	        percent_of_rgb[BLUE] = 0;
+
+	        //started_coloring = TRUE;
+	      }
+	      else if (meteor[strip_id][cycle_cntr] == 2)
+	      {
+	        percent_of_rgb[GREEN] = 0;
+	        percent_of_rgb[RED] = 1.0f;
+	        percent_of_rgb[BLUE] = 0;
+
+	        //started_coloring = TRUE;
+	      }
+	      else if (meteor[strip_id][cycle_cntr] == 3)
+	      {
+	        percent_of_rgb[GREEN] = 1.0f;
+	        percent_of_rgb[RED] = 1.0f;
+	        percent_of_rgb[BLUE] = 1.0f;
+
+	        //started_coloring = TRUE;
+	      }
+	      else //if (started_coloring == TRUE)
+	      {
+	        //if (teddy_bear[strip_id][cycle_cntr] != 2)
+	        //{
+	          percent_of_rgb[GREEN] = 0;
+	          percent_of_rgb[RED] = 0;
+	          percent_of_rgb[BLUE] = 0;
+
+	//          started_coloring = FALSE;
+	//        }
+	//        else
+	//        {
+	//          percent_of_rgb[GREEN] = 0;
+	//          percent_of_rgb[RED] = 1.0f;
+	//          percent_of_rgb[BLUE] = 0.5f;
+	//        }
+	      }
+
+	      LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, 200);
+	      LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, 200);
+	      LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, 200);
+	    }
+	    else
+	    {
+	      LED_strips[strip_id][new_led_idx][GREEN] = 0;
+	      LED_strips[strip_id][new_led_idx][RED] = 0;
+	      LED_strips[strip_id][new_led_idx][BLUE] = 0;
+	    }
+	  }
+
+	    // regular cycle drive leds and wait refresh time
+	    drive_LED_strips();
+	    HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+	//  }
+
+	  if (cycle_cntr == METEOR_LENGTH - 1)
+	  {
+	    //cycle_cntr = 0;
+	    //select_new_color = TRUE;
+	  }
+	  else
+	  {
+	    cycle_cntr++;
+	  }
     }
 }
 
