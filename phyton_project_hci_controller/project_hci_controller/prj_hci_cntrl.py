@@ -22,6 +22,7 @@ class ConUI():
             'main_menu': self.main_menu,
             '1': self.configShowMenu,
             '2': self.configSnakeShowMenu,
+            '3': self.ConfigFlash,
             'q': self.exit
         }
         
@@ -167,14 +168,38 @@ class ConUI():
 
 
     # Menu 2
-    def configSnakeShowMenu(self):
-        print ("Hello Menu 2 !\n")
-        print ("9. Back")
-        print ("0. Quit") 
-        choice = input(" >>  ")
-        self.exec_menu(choice)
+    def ConfigFlash(self):
+        print("Flash configuration Menu")
+        print("==================")
+        print ("1. store current configuration to flash")
+        print ("2. Load configuration from flash")
+        print ("3. set default configuration")
+        print ("b. Back") 
+        choiceOK = False
+        while (choiceOK == False):
+            try:        
+                action = input("please enter your choice>> ")
+                if (action =='b'):
+                    return
+                elif ((action == '1') or (action == '2') or (action == '3')):
+                    choiceOK = True
+                else:
+                    print("invalid choise!")
+            except:
+                print("invalid choise!")
+        if (action == '1'):
+            choice = input("Are you sure you want to store current configuration to flash? [y/n]")
+        elif (action == '2'):
+            choice = input("Are you sure you want to load configuration from flash? [y/n]")
+        elif (action == '3'):
+            choice = input("Are you sure you want to load default configuration? [y/n]")
+        if (choice == 'y'):
+            self.uartHciAgent.sendStoreConfig(int(action))
         return
-    
+
+    def configSnakeShowMenu(self):
+        return
+
     def exit(self):
         return
 

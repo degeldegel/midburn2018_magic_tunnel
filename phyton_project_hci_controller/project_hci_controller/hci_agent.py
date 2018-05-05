@@ -6,6 +6,7 @@ Created on 28 Apr 2018
 import sys
 import serial
 from serial.serialutil import SerialException
+from win32con import DMPAPER_10X11
 
 SYNCWORD = 0x55
 
@@ -45,8 +46,15 @@ class hciAgent():
             sys.exit(1)
     
     def sendConfigshow(self, showID, maxPower, direction):
-        self.sendCommand([SYNCWORD, 0x1, 0x3, showID, maxPower, direction]) 
-    
+        HCIOpcode = 0x1
+        HCILength = 0x3
+        self.sendCommand([SYNCWORD, HCIOpcode, HCILength, showID, maxPower, direction]) 
+
+    def sendStoreConfig(self, action):
+        HCIOpcode = 0x2
+        HCILength = 0x1
+        self.sendCommand([SYNCWORD, HCIOpcode, HCILength, action])
+        
     def sendCommand(self, cmd):
         #print(self.hciComPort)
         #print(cmd)

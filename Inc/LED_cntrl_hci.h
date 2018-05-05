@@ -13,6 +13,7 @@
 
 /* HCI commands lengths */
 #define SHOW_CONFIG_LENGTH_SIZE (3)
+#define CONFIG_FLASH_LENGTH_SIZE (1)
 
 /* =========================================================================================== */
 /* ==  ENUMS == */
@@ -35,11 +36,18 @@ typedef enum _hci_opcodes
 {
     HCI_OPCODE_NO_OPCODE        = 0,
     HCI_OPCODE_SHOW_CONFIG      = 1,
-    HCI_OPCODE_RESERVED_0       = 2,
+    HCI_OPCODE_STORE_CONFIG     = 2,
     HCI_OPCODE_RESERVED_1       = 3,
     HCI_OPCODE_RESERVED_2       = 4,
     HCI_OPCODE_RESERVED_3       = 5
 } hci_opcodes_e;
+
+typedef enum _config_flash_actions
+{
+    CONFIG_FLASH_STORE_2_FLASH   = 1,
+    CONFIG_FLASH_LOAD_FROM_FLASH = 2,
+    CONFIG_FLASH_LOAD_DEFAULTS   = 3
+} config_flash_actions_e;
 
 /* =========================================================================================== */
 /* ==  STRUCTS == */
@@ -54,6 +62,14 @@ typedef struct _hci_show_config_pckt
     uint8_t max_power;
     uint8_t direction;
 } hci_show_config_pckt_t;
+
+typedef struct _hci_config_flash_pckt
+{
+    uint8_t sync_word;
+    uint8_t opcode;
+    uint8_t length;
+    uint8_t action;
+} hci_config_flash_pckt_t;
 
 /* =========================================================================================== */
 /* ==  MACROS == */

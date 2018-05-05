@@ -24,7 +24,23 @@ uint8_t handle_new_hci_command()
                 shows[p_show_config_pckt->show_id].direction = p_show_config_pckt->direction;
             }
         } break;
-        case HCI_OPCODE_RESERVED_0:
+        case HCI_OPCODE_STORE_CONFIG:
+        {
+            hci_config_flash_pckt_t *p_config_flash_pckt = (hci_config_flash_pckt_t*)uart_hci_buffer;
+            if (uart_hci_buffer[HCI_PCKT_LENGTH] != CONFIG_FLASH_LENGTH_SIZE) return HCI_COMMAND_FAILED;
+            switch (p_config_flash_pckt->action)
+            {
+                case CONFIG_FLASH_STORE_2_FLASH:
+                    store_config_to_flash();
+                    break;
+                case CONFIG_FLASH_LOAD_FROM_FLASH:
+                    load_config_from_flash();
+                    break;
+                case CONFIG_FLASH_LOAD_DEFAULTS:
+                    load_default_configuration();
+                    break;
+            }
+        } break;
         case HCI_OPCODE_RESERVED_1:
         case HCI_OPCODE_RESERVED_2:
         case HCI_OPCODE_RESERVED_3:

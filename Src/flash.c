@@ -6,32 +6,33 @@ uint8_t flashStore(uint32_t *pData, uint32_t address, uint16_t sizeInBytes)
     HAL_StatusTypeDef res = HAL_OK;
     uint8_t wrIdx;
     uint16_t sizeInDW = sizeInBytes>>2;
-    HAL_FLASH_Unlock();
-
-//        for (; addr % 4 && sz >= 1; sz -= 1, addr += 1) {
-//            res = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, addr, *(uint8_t const*)data);
-//            data = (uint8_t const*)data + 1;
-//            if (res != HAL_OK)
-//                goto done;
-//        }
-
+    HAL_StatusTypeDef status = HAL_FLASH_Unlock();
+    while (status != HAL_OK)
+    {
+        status = HAL_FLASH_Unlock();
+    }
+    /* erase the whole sector */
+    FLASH_Erase_Sector(FLASH_SECTOR_3, VOLTAGE_RANGE_3);
+    /* program flash with new data */
     for (wrIdx=0 ; wrIdx < sizeInDW; wrIdx++) {
         res = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *(pData+wrIdx));
         address = address + 4;
         if (res != HAL_OK)
         {
-            HAL_FLASH_Lock();
+            status = HAL_FLASH_Lock();
+            while (status != HAL_OK)
+            {
+                status = HAL_FLASH_Lock();
+            }
             return FLASH_FAIL;
         }
     }
-    HAL_FLASH_Lock();
+    status = HAL_FLASH_Lock();
+    while (status != HAL_OK)
+    {
+        status = HAL_FLASH_Lock();
+    }
     return FLASH_SUCCESS;
-//    for (; sz >= 1; sz -= 1, addr += 1) {
-//        res = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, addr, *(uint8_t const*)data);
-//        data = (uint8_t const*)data + 1;
-//        if (res != HAL_OK)
-//            goto done;
-//    }
 }
 
 void flashLoad(uint32_t *pData, uint32_t address, uint16_t sizeInBytes)
