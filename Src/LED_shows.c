@@ -24,12 +24,16 @@ void init_shows(void)
 		shows[i].direction = REGULAR_DIRECTION;
 		shows[i].max_power = DEFAULT_MAX_POWER;
 	}
+	/* clean Flash! -----> */
+//	config_db.magic_word = 0;
+//	flashStore((uint32_t*)&config_db, DATA_FLASH_START_ADDR, 0x4);
+	/* clean Flash! <----- */
 	load_config_from_flash();
 	if (config_db.magic_word != FLASH_MAGIC_WORD)
 	{
 	    /* flash is corrupt or non initialized set default configuration */
 	    load_default_configuration();
-	    flashStore((uint32_t*)&config_db, DATA_FLASH_START_ADDR, sizeof(flash_show_config_db_t));
+	    store_config_to_flash();
 	}
 }
 
@@ -41,16 +45,21 @@ void init_shows(void)
 void load_default_configuration(void)
 {
     /* update config db */
+    uint8_t snake_id;
     config_db.magic_word = FLASH_MAGIC_WORD;
-    config_db.snake.cycle_length = DEFAULT_SNAKE_SHOW_CYCLE_LENGTH;
-    config_db.snake.fade_out_steps = DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS;
-    config_db.snake.perform_startup_seq = DEFAULT_SNAKE_SHOW_PERFORM_STRATUP_SEQ;
-    config_db.snake.refresh_time = DEFAULT_SNAKE_SHOW_REFRESH_TIME;
-    config_db.snake.snake_length = DEFAULT_SNAKE_SHOW_SNAKE_LENGTH;
-    config_db.snake.starup_seq_end_cycle = DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE;
-    /* update shows db */
-    shows[SHOWS_SNAKE].direction = REGULAR_DIRECTION;
-    shows[SHOWS_SNAKE].max_power = DEFAULT_MAX_POWER;
+    for (snake_id=0; snake_id<NUM_OF_SNAKE_SHOWS; snake_id++)
+    {
+        uint8_t snake_show_id = snake_id; //it looks straight forward but this is done for future moving snakes to different location in the show database
+        config_db.snake[snake_id].cycle_length = DEFAULT_SNAKE_SHOW_CYCLE_LENGTH;
+        config_db.snake[snake_id].fade_out_steps = DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS;
+        config_db.snake[snake_id].perform_startup_seq = DEFAULT_SNAKE_SHOW_PERFORM_STRATUP_SEQ;
+        config_db.snake[snake_id].refresh_time = DEFAULT_SNAKE_SHOW_REFRESH_TIME;
+        config_db.snake[snake_id].snake_length = DEFAULT_SNAKE_SHOW_SNAKE_LENGTH;
+        config_db.snake[snake_id].starup_seq_end_cycle = DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE;
+        /* update shows db */
+        shows[snake_show_id].direction = REGULAR_DIRECTION;
+        shows[snake_show_id].max_power = DEFAULT_MAX_POWER;
+    }
 }
 
 /**
@@ -61,8 +70,16 @@ void load_default_configuration(void)
 void store_config_to_flash(void)
 {
     uint8_t status;
-    config_db.snake.max_power = shows[SHOWS_SNAKE].max_power;
-    config_db.snake.direction = shows[SHOWS_SNAKE].direction;
+    uint8_t show_idx;
+
+    /* Snake shows store */
+    for (show_idx=0; show_idx<NUM_OF_SNAKE_SHOWS; show_idx++)
+    {
+        uint8_t snake_idx = show_idx; //it looks straight forward but this is done for future moving snakes to different location in the show database
+        config_db.snake[snake_idx].max_power = shows[show_idx].max_power;
+        config_db.snake[snake_idx].direction = shows[show_idx].direction;
+
+    }
     status = flashStore((uint32_t*)&config_db, DATA_FLASH_START_ADDR, sizeof(flash_show_config_db_t));
     if (status == FLASH_FAIL)
     {
@@ -81,10 +98,31 @@ void load_config_from_flash(void)
     flashLoad((uint32_t*)&config_db, DATA_FLASH_START_ADDR, 0x4);
     if (config_db.magic_word == FLASH_MAGIC_WORD)
     {
+        uint8_t show_idx;
         flashLoad((uint32_t*)&config_db, DATA_FLASH_START_ADDR, sizeof(flash_show_config_db_t));
-        shows[SHOWS_SNAKE].max_power = config_db.snake.max_power;
-        shows[SHOWS_SNAKE].direction = config_db.snake.direction;
+        /* Snake shows load */
+        for (show_idx=0; show_idx<NUM_OF_SNAKE_SHOWS; show_idx++)
+        {
+            uint8_t snake_idx = show_idx; //it looks straight forward but this is done for future moving snakes to different location in the show database
+            shows[show_idx].max_power = config_db.snake[snake_idx].max_power;
+            shows[show_idx].direction = config_db.snake[snake_idx].direction;
+        }
     }
+}
+
+void snake_show_0(void)
+{
+    snake_show(0);
+}
+
+void snake_show_1(void)
+{
+    snake_show(1);
+}
+
+void snake_show_2(void)
+{
+    snake_show(2);
 }
 
 /**
@@ -92,7 +130,7 @@ void load_config_from_flash(void)
   * @param  void
   * @retval void
   */
-void snake_show(void)
+void snake_show(uint8_t snake_id)
 {
     volatile int led_id, strip_id;
 
@@ -101,20 +139,21 @@ void snake_show(void)
     uint8_t select_new_color = TRUE;
     int8_t shut_down_seq_idx;
     uint16_t new_led_idx;
+    uint8_t snake_show_id = snake_id;
 
     //light up green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
     //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
     srand(SysTick->VAL);
-    while (shows[SHOWS_SNAKE].status == SHOW_STATUS_RUNNING)
+    while (shows[snake_show_id].status == SHOW_STATUS_RUNNING)
     {
         for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
         {
             /* go over the strip and move every LED one hop according to the direction */
             /* For regular direction go from last led to the first and move state of led-1 to led_id*/
             /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
-            if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+            if (shows[snake_show_id].direction == REGULAR_DIRECTION)
             {
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {
@@ -142,14 +181,14 @@ void snake_show(void)
                 select_new_color = FALSE;
             }
             /* update the first led, the only one that wasn't updated till now */
-            new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
-            if (cycle_cntr < config_db.snake.snake_length)
+            new_led_idx = (shows[snake_show_id].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
+            if (cycle_cntr < config_db.snake[snake_id].snake_length)
             {
-                uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (config_db.snake.snake_length-1))) ? 50 :
-                                ((cycle_cntr == 1) || (cycle_cntr == (config_db.snake.snake_length-2))) ? 100 : 200;
-                LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, power);
-                LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, power);
-                LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, power);
+                uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (config_db.snake[snake_id].snake_length-1))) ? 50 :
+                                ((cycle_cntr == 1) || (cycle_cntr == (config_db.snake[snake_id].snake_length-2))) ? 100 : 200;
+                LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(snake_show_id, power);
+                LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(snake_show_id, power);
+                LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(snake_show_id, power);
             }
             else
             {
@@ -158,7 +197,7 @@ void snake_show(void)
                 LED_strips[strip_id][new_led_idx][BLUE] = 0;
             }
         }
-        if (config_db.snake.perform_startup_seq && (startup_cycle_cntr < config_db.snake.starup_seq_end_cycle))
+        if (config_db.snake[snake_id].perform_startup_seq && (startup_cycle_cntr < config_db.snake[snake_id].starup_seq_end_cycle))
         {
             /* startup sequence - run the loop without delay and driving the led strips */
             startup_cycle_cntr++;
@@ -167,9 +206,9 @@ void snake_show(void)
         {
             /* regular cycle drive leds and wait refresh time */
             drive_LED_strips();
-            HAL_Delay(config_db.snake.refresh_time);
+            HAL_Delay(config_db.snake[snake_id].refresh_time);
         }
-        if (cycle_cntr >= (config_db.snake.cycle_length-1))
+        if (cycle_cntr >= (config_db.snake[snake_id].cycle_length-1))
         {
             cycle_cntr = 0;
             select_new_color = TRUE;
@@ -181,15 +220,15 @@ void snake_show(void)
     }
 
     /* snake shut down sequence */
-    for (shut_down_seq_idx=config_db.snake.fade_out_steps; shut_down_seq_idx>=0; shut_down_seq_idx--)
+    for (shut_down_seq_idx=config_db.snake[snake_id].fade_out_steps; shut_down_seq_idx>=0; shut_down_seq_idx--)
     {
         for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
         {
             /* go over the strip and move every LED one hop according to the direction + perform dimming out */
             /* For regular direction go from last led to the first and move state of led-1 to led_id*/
             /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
-            double dim_percentage = (double)shut_down_seq_idx / config_db.snake.fade_out_steps;
-            if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+            double dim_percentage = (double)shut_down_seq_idx / config_db.snake[snake_id].fade_out_steps;
+            if (shows[snake_show_id].direction == REGULAR_DIRECTION)
             {
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {
@@ -207,15 +246,15 @@ void snake_show(void)
                     LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE]  * dim_percentage;
                 }
             }
-            new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
+            new_led_idx = (shows[snake_show_id].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
             LED_strips[strip_id][new_led_idx][GREEN] = 0;
             LED_strips[strip_id][new_led_idx][RED] = 0;
             LED_strips[strip_id][new_led_idx][BLUE] = 0;
         }
         drive_LED_strips();
-        HAL_Delay(config_db.snake.refresh_time);
+        HAL_Delay(config_db.snake[snake_id].refresh_time);
     }
-    shows[SHOWS_SNAKE].status = SHOW_STATUS_DISABLED;
+    shows[snake_show_id].status = SHOW_STATUS_DISABLED;
     //turn off green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 }

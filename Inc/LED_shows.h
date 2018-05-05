@@ -12,6 +12,7 @@
 #define REVERSE_DIRECTION (1) //From end of strip to LED #0
 #define NUM_OF_SHOWS      (4)
 #define DEFAULT_MAX_POWER (60)
+#define NUM_OF_SNAKE_SHOWS (3)
 #define DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS (10) //in how many steps the snakes should fade out (for shut down sequence)
 #define DEFAULT_SNAKE_SHOW_REFRESH_TIME (30) //period time of refresh rate in milisec
 #define DEFAULT_SNAKE_SHOW_CYCLE_LENGTH (17) //this is the length of the cycle of one snake (one snake length + gap to next snake)
@@ -25,9 +26,9 @@
 
 typedef enum _shows
 {
-    SHOWS_SNAKE     = 0,
-    SHOWS_RESERVED0 = 1,
-    SHOWS_RESERVED1 = 2,
+    SHOWS_SNAKE_0   = 0,
+    SHOWS_SNAKE_1   = 1,
+    SHOWS_SNAKE_2   = 2,
     SHOWS_RESERVED2 = 3
 } show_id_e;
 
@@ -68,7 +69,7 @@ typedef struct snake_show_db
 typedef struct flash_show_config_db
 { /* for flash purposes needs to be 32 bit aligned */
     uint32_t magic_word;
-    snake_show_db_t snake;
+    snake_show_db_t snake[NUM_OF_SNAKE_SHOWS];
 } flash_show_config_db_t;
 
 /* =========================================================================================== */
@@ -89,11 +90,32 @@ typedef struct flash_show_config_db
 typedef void (*show_cb_function)(void);
 
 /**
+  * @brief  wrapper function for snake show #0
+  * @param  void
+  * @retval void
+  */
+void snake_show_0(void);
+
+/**
+  * @brief  wrapper function for snake show #1
+  * @param  void
+  * @retval void
+  */
+void snake_show_1(void);
+
+/**
+  * @brief  wrapper function for snake show #2
+  * @param  void
+  * @retval void
+  */
+void snake_show_2(void);
+
+/**
   * @brief  snake show, runs colorful snakes through the LED strips.
   * @param  void
   * @retval void
   */
-void snake_show(void);
+void snake_show(uint8_t snake_id);
 
 /**
   * @brief  initialize shows database.
