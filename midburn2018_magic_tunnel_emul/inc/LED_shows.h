@@ -18,7 +18,11 @@
 #define SNAKE_SHOW_PERFORM_STRATUP_SEQ   (1)
 #define SNAKE_SHOW_STARTUP_SEQ_END_CYCLE (300)
 
-#define METEOR_LENGTH (37)
+#define METEOR_LENGTH (61)
+#define TOTAL_EXPLOSION_TIME (100)
+#define EXPLOSION_PHASES (2)
+#define EXPLOSION_PHASE1_TIME (30)
+#define EXPLOSION_PHASE2_TIME (70)
 
 /* =========================================================================================== */
 /* ==  ENUMS == */
@@ -95,6 +99,13 @@ void TwinklingStars(void);
   * @retval void
   */
 void MeteorDrop(void);
+
+/**
+  * @brief  MeteorExplosion - Boom!.
+  * @param  void
+  * @retval void
+  */
+void MeteorExplosion(void);
 
 /**
   * @brief  initialize shows database.
