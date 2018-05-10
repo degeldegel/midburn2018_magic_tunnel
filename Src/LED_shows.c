@@ -10,6 +10,28 @@ extern volatile uint8_t LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LE
 volatile show_db_t shows[NUM_OF_SHOWS];
 volatile flash_show_config_db_t config_db;
 
+int teddy_bear[MAX_SUPPORTED_NUM_OF_STRIPS][TEDDY_BEAR_SNAKE_LENGTH] =
+{
+        {0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1},
+        {0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1},
+        {0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,2,2,0,0,0,0,0,2,2,0,1,0,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,2,2,2,0,0,0,0,1,1,1},
+        {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,0,0,0,0,0,2,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2,2,2,2,2,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1},
+        {0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1},
+        {0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,2,0,0,0,0,0,1,0,0,0,1},
+        {0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,0,1,1},
+        {0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,1,0,0,0,1},
+        {0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0},
+        {0,0,0,0,0,0,1,1,1,0,0,1,1,1,0,0,0,0,0,2,0,0,0,0,0,1,1,1,0,0,1,1,1},
+        {0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,2,0,0,0,1,1,0,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,1},
+        {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0},
+        {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0}
+};
+
 /**
   * @brief  initialize shows database.
   * @param  void
@@ -258,3 +280,86 @@ void snake_show(uint8_t snake_id)
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 }
 
+void teady_bear(void)
+{
+    volatile uint32_t cycle_cntr=0;
+
+    while (shows[SHOWS_TEDDY_BEAR].status == SHOW_STATUS_RUNNING)
+    {
+        for (int strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+        {
+            // go over the strip and move every LED one hop according to the direction
+            // For regular direction go from last led to the first and move state of led-1 to led_id
+            // For reverse direction go from the first to the last and move state of led_id+1 to led_id
+            if (shows[SHOWS_TEDDY_BEAR].direction == REGULAR_DIRECTION)
+            {
+                for (int led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
+                {
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id-1][GREEN];
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id-1][RED];
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id-1][BLUE];
+                }
+            }
+            else
+            {
+                for (int led_id=0; led_id<(MAX_LEDS_IN_STRIP-1); led_id++)
+                {
+                    LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id+1][GREEN];
+                    LED_strips[strip_id][led_id][RED]   = LED_strips[strip_id][led_id+1][RED];
+                    LED_strips[strip_id][led_id][BLUE]  = LED_strips[strip_id][led_id+1][BLUE];
+                }
+            }
+
+            // update the first led, the only one that wasn't updated till now
+            uint16_t new_led_idx = (shows[SHOWS_TEDDY_BEAR].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP - 1;
+
+            if (cycle_cntr < TEDDY_BEAR_SNAKE_LENGTH)
+            {
+                double percent_of_rgb[3]={0};
+
+                if (teddy_bear[strip_id][cycle_cntr] == 1)
+                {
+                    percent_of_rgb[GREEN] = 0;
+                    percent_of_rgb[RED] = 1.0f;
+                    percent_of_rgb[BLUE] = 0.5f;
+
+                }
+                else if (teddy_bear[strip_id][cycle_cntr] == 2)
+                {
+                    percent_of_rgb[GREEN] = 1.0f;
+                    percent_of_rgb[RED] = 1.0f;
+                    percent_of_rgb[BLUE] = 1.0f;
+
+                }
+                else //if (started_coloring == TRUE)
+                {
+                    percent_of_rgb[GREEN] = 0;
+                    percent_of_rgb[RED] = 0;
+                    percent_of_rgb[BLUE] = 0;
+                }
+
+                LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_TEDDY_BEAR, 200);
+                LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_TEDDY_BEAR, 200);
+                LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_TEDDY_BEAR, 200);
+            }
+            else
+            {
+                LED_strips[strip_id][new_led_idx][GREEN] = 0;
+                LED_strips[strip_id][new_led_idx][RED] = 0;
+                LED_strips[strip_id][new_led_idx][BLUE] = 0;
+            }
+        }
+
+        drive_LED_strips();
+        HAL_Delay(10); //TODO add to be configurable
+
+        if (cycle_cntr == TEDDY_BEAR_CYCLE_LENGTH - 1)
+        {
+            cycle_cntr = 0;
+        }
+        else
+        {
+            cycle_cntr++;
+        }
+    }
+}

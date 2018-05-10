@@ -20,16 +20,19 @@
 #define DEFAULT_SNAKE_SHOW_PERFORM_STRATUP_SEQ   (1)
 #define DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE (300)
 
+#define TEDDY_BEAR_CYCLE_LENGTH (40)
+#define TEDDY_BEAR_SNAKE_LENGTH (37)
+
 /* =========================================================================================== */
 /* ==  ENUMS == */
 /* =========================================================================================== */
 
 typedef enum _shows
 {
-    SHOWS_SNAKE_0   = 0,
-    SHOWS_SNAKE_1   = 1,
-    SHOWS_SNAKE_2   = 2,
-    SHOWS_RESERVED2 = 3
+    SHOWS_SNAKE_0    = 0,
+    SHOWS_SNAKE_1    = 1,
+    SHOWS_SNAKE_2    = 2,
+    SHOWS_TEDDY_BEAR = 3
 } show_id_e;
 
 typedef enum _show_status
@@ -144,5 +147,7 @@ void load_default_configuration(void);
   * @retval void
   */
 void load_config_from_flash(void);
+
+void teady_bear(void);
 
 #endif  /* _LED_SHOWS_H */

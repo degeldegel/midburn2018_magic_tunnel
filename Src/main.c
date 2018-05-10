@@ -56,7 +56,7 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 extern volatile show_db_t shows[NUM_OF_SHOWS];
-show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, NULL};
+show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,7 +78,7 @@ static void MX_TIM3_Init(void);
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (GPIO_Pin==B1_Pin)
+/*    if (GPIO_Pin==B1_Pin)
     {
         if (shows[SHOWS_SNAKE_0].status == SHOW_STATUS_DISABLED)
         {
@@ -88,7 +88,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         {
             shows[SHOWS_SNAKE_0].status = SHOW_STATUS_STOP;
         }
-    }
+    }*/
 }
 
 /* USER CODE END 0 */
