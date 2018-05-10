@@ -442,9 +442,9 @@ void MeteorShow(void)
 
     srand(SysTick->VAL);
 
-//	TwinklingStars();
-//	MeteorDrop();
-	MeteorExplosion();
+    TwinklingStars();
+    //MeteorDrop();
+	//MeteorExplosion();
 
 	//turn off green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
@@ -460,10 +460,10 @@ void TwinklingStars(void)
 
     uint8_t step_size = shows[SHOWS_METEOR].max_power * 2 / cycle_length;
     // probability for each led to start the twinkle
-    volatile double twinkle_probabilty = 10;
+    volatile double twinkle_probabilty = 400;
 
     //light up green led indication
-    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
     while (shows[SHOWS_METEOR].status == SHOW_STATUS_RUNNING)
     {
     	for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
@@ -502,18 +502,19 @@ void TwinklingStars(void)
     			}
     		}
     	}
-    drive_LED_strips();
-    HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+
+    	drive_LED_strips();
+    	HAL_Delay(30);//TODO - make it configurable
     }
     // stars shut down sequence
-    for (shut_down_seq_idx=SNAKE_SHOW_NUM_OF_DIM_STEPS; shut_down_seq_idx>=0; shut_down_seq_idx--)
+    for (shut_down_seq_idx=10; shut_down_seq_idx>=0; shut_down_seq_idx--)//TODO - config
     {
         for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
         {
             /* go over the strip and move every LED one hop according to the direction + perform dimming out */
             /* For regular direction go from last led to the first and move state of led-1 to led_id*/
             /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
-            double dim_percentage = (double)shut_down_seq_idx / SNAKE_SHOW_NUM_OF_DIM_STEPS;
+            double dim_percentage = (double)shut_down_seq_idx / 10;// make config SNAKE_SHOW_NUM_OF_DIM_STEPS;
             for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
             {
                 LED_strips[strip_id][led_id][GREEN] = LED_strips[strip_id][led_id][GREEN] * dim_percentage;
@@ -525,14 +526,14 @@ void TwinklingStars(void)
             LED_strips[strip_id][0][BLUE] = 0;
         }
         drive_LED_strips();
-        HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+        HAL_Delay(30); //TODO - config
     }
 }
 
 void MeteorDrop(void)
 {
     volatile int led_id, strip_id;
-    int8_t shut_down_seq_idx;
+    //int8_t shut_down_seq_idx;
 
     //light up green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
@@ -544,7 +545,7 @@ void MeteorDrop(void)
 	    // go over the strip and move every LED one hop according to the direction
 	    // For regular direction go from last led to the first and move state of led-1 to led_id
 	    // For reverse direction go from the first to the last and move state of led_id+1 to led_id
-	    if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+	    if (shows[SHOWS_METEOR].direction == REGULAR_DIRECTION)
 	    {
 	      for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
 	      {
@@ -564,7 +565,7 @@ void MeteorDrop(void)
 	    }
 
 	    // update the first led, the only one that wasn't updated till now
-	    uint16_t new_led_idx = (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP - 1;
+	    uint16_t new_led_idx = (shows[SHOWS_METEOR].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP - 1;
 
 	    if (cycle_cntr < METEOR_LENGTH)
 	    {
@@ -603,9 +604,9 @@ void MeteorDrop(void)
 	          percent_of_rgb[BLUE] = 0;
 	      }
 
-	      LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, 200);
-	      LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, 200);
-	      LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, 200);
+	      LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_METEOR, 200);
+	      LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_METEOR, 200);
+	      LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_METEOR, 200);
 	    }
 	    else
 	    {
@@ -617,7 +618,7 @@ void MeteorDrop(void)
 
 	    // regular cycle drive leds and wait refresh time
 	    drive_LED_strips();
-	    HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+	    HAL_Delay(30); //TODO - config
 	//  }
 
 	  if (cycle_cntr == METEOR_LENGTH - 1)
@@ -634,7 +635,7 @@ void MeteorDrop(void)
 void MeteorExplosion(void)
 {
     volatile int led_id, strip_id;
-    int8_t shut_down_seq_idx;
+    //int8_t shut_down_seq_idx;
 
     //light up green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
@@ -643,7 +644,7 @@ void MeteorExplosion(void)
 
 	  for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
 	  {
-	    if (shows[SHOWS_SNAKE].direction == REGULAR_DIRECTION)
+	    if (shows[SHOWS_METEOR].direction == REGULAR_DIRECTION)
 	    {
 	      for (led_id=(METEOR_LENGTH-1); led_id!=0; led_id--)
 	      {
@@ -678,9 +679,9 @@ void MeteorExplosion(void)
 		          percent_of_rgb[BLUE] = 0;
 		      }
 
-	        LED_strips[strip_id][led_id][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, 200);
-	        LED_strips[strip_id][led_id][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, 200);
-	        LED_strips[strip_id][led_id][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, 200);
+	        LED_strips[strip_id][led_id][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_METEOR, 200);
+	        LED_strips[strip_id][led_id][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_METEOR, 200);
+	        LED_strips[strip_id][led_id][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_METEOR, 200);
 	      }
 	    }
 	    else
@@ -718,9 +719,9 @@ void MeteorExplosion(void)
 		          percent_of_rgb[BLUE] = 0;
 		      }
 
-         	  LED_strips[strip_id][led_id][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, 200);
-		      LED_strips[strip_id][led_id][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, 200);
-		      LED_strips[strip_id][led_id][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_SNAKE, 200);
+         	  LED_strips[strip_id][led_id][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_METEOR, 200);
+		      LED_strips[strip_id][led_id][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_METEOR, 200);
+		      LED_strips[strip_id][led_id][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(SHOWS_METEOR, 200);
 	      }
 //	      LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(SHOWS_SNAKE, 200);
 //	      LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(SHOWS_SNAKE, 200);
@@ -730,7 +731,7 @@ void MeteorExplosion(void)
 
 		// regular cycle drive leds and wait refresh time
 		drive_LED_strips();
-		HAL_Delay(SNAKE_SHOW_REFRESH_TIME);
+		HAL_Delay(30); //TODO - make cinfig
 		if (explosion_timer == EXPLOSION_PHASE1_TIME - 1)
 		  {
 			explosion_timer++;

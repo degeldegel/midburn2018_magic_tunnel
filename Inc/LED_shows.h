@@ -10,7 +10,7 @@
 
 #define REGULAR_DIRECTION (0) //From LED #0 to end of strip
 #define REVERSE_DIRECTION (1) //From end of strip to LED #0
-#define NUM_OF_SHOWS      (4)
+#define NUM_OF_SHOWS      (5)
 #define DEFAULT_MAX_POWER (60)
 #define NUM_OF_SNAKE_SHOWS (3)
 #define DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS (10) //in how many steps the snakes should fade out (for shut down sequence)
@@ -23,6 +23,11 @@
 #define TEDDY_BEAR_CYCLE_LENGTH (40)
 #define TEDDY_BEAR_SNAKE_LENGTH (37)
 
+#define METEOR_LENGTH (61)
+#define TOTAL_EXPLOSION_TIME (100)
+#define EXPLOSION_PHASES (2)
+#define EXPLOSION_PHASE1_TIME (30)
+#define EXPLOSION_PHASE2_TIME (70)
 /* =========================================================================================== */
 /* ==  ENUMS == */
 /* =========================================================================================== */
@@ -32,7 +37,8 @@ typedef enum _shows
     SHOWS_SNAKE_0    = 0,
     SHOWS_SNAKE_1    = 1,
     SHOWS_SNAKE_2    = 2,
-    SHOWS_TEDDY_BEAR = 3
+    SHOWS_TEDDY_BEAR = 3,
+    SHOWS_METEOR     = 4
 } show_id_e;
 
 typedef enum _show_status
@@ -149,5 +155,33 @@ void load_default_configuration(void);
 void load_config_from_flash(void);
 
 void teady_bear(void);
+
+/**
+  * @brief  comet show, stars, comet and explosion.
+  * @param  void
+  * @retval void
+  */
+void MeteorShow(void);
+
+/**
+  * @brief  TwinklingStars - stars shining and dimming down.
+  * @param  void
+  * @retval void
+  */
+void TwinklingStars(void);
+
+/**
+  * @brief  MeteorDrop - Meteor falling.
+  * @param  void
+  * @retval void
+  */
+void MeteorDrop(void);
+
+/**
+  * @brief  MeteorExplosion - Boom!.
+  * @param  void
+  * @retval void
+  */
+void MeteorExplosion(void);
 
 #endif  /* _LED_SHOWS_H */

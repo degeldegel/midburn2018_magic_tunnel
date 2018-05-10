@@ -70,7 +70,7 @@ void init_scheduler(void)
 {
     uint8_t show_idx;
     schdlr_db.current_show = 0;
-    schdlr_db.num_of_shows = 4;
+    schdlr_db.num_of_shows = 5;
     schdlr_db.maximum_time_run = 40;
     schdlr_db.minimum_time_run = 20;
     for (show_idx=0; show_idx<schdlr_db.num_of_shows; show_idx++)

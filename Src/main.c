@@ -56,7 +56,7 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 extern volatile show_db_t shows[NUM_OF_SHOWS];
-show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear};
+show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear, MeteorShow};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
