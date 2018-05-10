@@ -13,18 +13,18 @@ uint8_t  LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LEDS_IN_STRIP][NU
 
 uint8_t strip_ports[MAX_SUPPORTED_NUM_OF_STRIPS] =
        /* Strip #0     Strip #1     Strip #2     Strip #3     Strip #4     Strip #5     Strip #6     Strip #7  */
-       {GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_B, GPIO_PORT_B, GPIO_PORT_B, GPIO_PORT_B,
+       {GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C,
        /* Strip #8     Strip #9     Strip #10    Strip #11    Strip #12    Strip #13    Strip #14    Strip #15 */
-        GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA,
+        GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_C, GPIO_PORT_B, GPIO_PORT_C, GPIO_PORT_B, GPIO_PORT_B,
        /* Strip #16    Strip #17    Strip #18    Strip #19 */
-        GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA, GPIO_PRT_NA};
+        GPIO_PORT_B, GPIO_PORT_B, GPIO_PRT_NA, GPIO_PRT_NA};
 uint16_t strip_GPIOs[MAX_SUPPORTED_NUM_OF_STRIPS] =
        /* Strip #0     Strip #1     Strip #2     Strip #3     Strip #4     Strip #5     Strip #6     Strip #7  */
-       { GPIO_PIN_0,  GPIO_PIN_1,  GPIO_PIN_2,  GPIO_PIN_3, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15,
+       { GPIO_PIN_0,  GPIO_PIN_1,  GPIO_PIN_7,  GPIO_PIN_4,  GPIO_PIN_3,  GPIO_PIN_2,  GPIO_PIN_6,  GPIO_PIN_5,
        /* Strip #8     Strip #9     Strip #10    Strip #11    Strip #12    Strip #13    Strip #14    Strip #15 */
-        GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA,
+        GPIO_PIN_10, GPIO_PIN_11,  GPIO_PIN_9,  GPIO_PIN_8,  GPIO_PIN_0, GPIO_PIN_12, GPIO_PIN_14, GPIO_PIN_13,
        /* Strip #16    Strip #17    Strip #18    Strip #19 */
-        GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA, GPIO_PIN_NA};
+         GPIO_PIN_2, GPIO_PIN_12, GPIO_PIN_NA, GPIO_PIN_NA};
 
 /**
   * @brief  This functions performs the actual update of the GPIOs of the strip LEDs. it is using the masks updated in function

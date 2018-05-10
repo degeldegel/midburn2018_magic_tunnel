@@ -146,6 +146,10 @@ int main(void)
           {
               shows[show_idx].status = SHOW_STATUS_RUNNING;
               shows_cb_functions[show_idx]();
+              if (shows[show_idx].status == SHOW_STATUS_STOP)
+              {
+                  shows[show_idx].status = SHOW_STATUS_DISABLED;
+              }
           }
       }
   }

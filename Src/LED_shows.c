@@ -139,7 +139,7 @@ void snake_show(uint8_t snake_id)
     uint8_t select_new_color = TRUE;
     int8_t shut_down_seq_idx;
     uint16_t new_led_idx;
-    uint8_t snake_show_id = snake_id;
+    uint8_t snake_show_id = snake_id; //this was added as preparation for future option of snake id not aligned with show id
 
     //light up green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
@@ -254,7 +254,6 @@ void snake_show(uint8_t snake_id)
         drive_LED_strips();
         HAL_Delay(config_db.snake[snake_id].refresh_time);
     }
-    shows[snake_show_id].status = SHOW_STATUS_DISABLED;
     //turn off green led indication
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 }
