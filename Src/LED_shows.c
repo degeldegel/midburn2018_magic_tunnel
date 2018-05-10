@@ -105,6 +105,22 @@ int explosion[EXPLOSION_PHASES][MAX_SUPPORTED_NUM_OF_STRIPS][METEOR_LENGTH] =
 	}
 };
 
+double rainbow[12][3] =
+{
+		{1,  0,  0  },
+		{1,  0.5,0  },
+		{1,  1,  0  },
+		{0.5,1,  0  },
+		{0,  1,  0  },
+		{0,  1,  0.5},
+		{0,  1,  1  },
+		{0,  0.5,1  },
+		{0,  0,  1  },
+		{0.5,0,  1  },
+		{1,  0,  1  },
+		{1,  0,  0.5}
+};
+
 /**
   * @brief  initialize shows database.
   * @param  void
@@ -230,7 +246,7 @@ void snake_show(uint8_t snake_id)
 {
     volatile int led_id, strip_id;
 
-    uint32_t cycle_cntr=0, startup_cycle_cntr=0;
+    uint32_t cycle_cntr=0, startup_cycle_cntr=0, color_index=0;
     double percent_of_rgb[3]={0};
     uint8_t select_new_color = TRUE;
     int8_t shut_down_seq_idx;
@@ -273,8 +289,17 @@ void snake_show(uint8_t snake_id)
                 for (rgb_idx=0; rgb_idx<3; rgb_idx++)
                 {
                     percent_of_rgb[rgb_idx] = ((double)(rand()%100))/100;
+                    if (snake_show_id == 2)
+                    {
+                    	percent_of_rgb[rgb_idx] = rainbow[color_index][rgb_idx];
+                    }
                 }
                 select_new_color = FALSE;
+                color_index++;
+				if (color_index >= 12)
+				{
+					color_index = 0;
+				}
             }
             /* update the first led, the only one that wasn't updated till now */
             new_led_idx = (shows[snake_show_id].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
@@ -282,6 +307,10 @@ void snake_show(uint8_t snake_id)
             {
                 uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (config_db.snake[snake_id].snake_length-1))) ? 50 :
                                 ((cycle_cntr == 1) || (cycle_cntr == (config_db.snake[snake_id].snake_length-2))) ? 100 : 200;
+                if (snake_show_id == 2)
+                {
+                	power = 200;
+                }
                 LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(snake_show_id, power);
                 LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(snake_show_id, power);
                 LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(snake_show_id, power);
