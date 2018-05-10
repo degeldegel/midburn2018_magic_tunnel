@@ -69,6 +69,12 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+typedef enum _system_type
+{
+    SYSTEM_TYPE_TUNNEL = 0,
+    SYSTEM_TYPE_SIDE_CLOUDS = 1,
+    SYSTEM_TYPE_CLOUDS = 2
+} system_type_e;
 
 /* USER CODE END Private defines */
 
