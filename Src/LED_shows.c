@@ -119,6 +119,7 @@ void init_shows(void)
 		shows[i].direction = REGULAR_DIRECTION;
 		shows[i].max_power = DEFAULT_MAX_POWER;
 	}
+	shows[1].direction = ALTERNATE_DIRECTION;
 	/* clean Flash! -----> */
 //	config_db.magic_word = 0;
 //	flashStore((uint32_t*)&config_db, DATA_FLASH_START_ADDR, 0x4);
@@ -248,7 +249,7 @@ void snake_show(uint8_t snake_id)
             /* go over the strip and move every LED one hop according to the direction */
             /* For regular direction go from last led to the first and move state of led-1 to led_id*/
             /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
-            if (shows[snake_show_id].direction == REGULAR_DIRECTION)
+            if ((shows[snake_show_id].direction == REGULAR_DIRECTION) || ((shows[snake_show_id].direction == ALTERNATE_DIRECTION) (strip_id % 2 == 0)))
             {
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {

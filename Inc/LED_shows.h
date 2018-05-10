@@ -10,6 +10,7 @@
 
 #define REGULAR_DIRECTION (0) //From LED #0 to end of strip
 #define REVERSE_DIRECTION (1) //From end of strip to LED #0
+#define ALTERNATE_DIRECTION(2)
 #define NUM_OF_SHOWS      (5)
 #define DEFAULT_MAX_POWER (60)
 #define NUM_OF_SNAKE_SHOWS (3)
