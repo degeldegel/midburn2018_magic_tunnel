@@ -46,6 +46,7 @@
 #include "stdio.h"
 #include "LED_cntrl_hci.h"
 #include "scheduler.h"
+#include "side_clouds.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -57,7 +58,8 @@ UART_HandleTypeDef huart1;
 /* Private variables ---------------------------------------------------------*/
 extern volatile show_db_t shows[NUM_OF_SHOWS];
 show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, NULL};
-system_type_e system_type = SYSTEM_TYPE_TUNNEL;
+//system_type_e system_type = SYSTEM_TYPE_TUNNEL;
+system_type_e system_type = SYSTEM_TYPE_SIDE_CLOUDS;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -169,7 +171,7 @@ int main(void)
       }
       else if (system_type == SYSTEM_TYPE_SIDE_CLOUDS)
       {
-
+          side_clouds_show();
       }
       else if (system_type == SYSTEM_TYPE_CLOUDS)
       {
