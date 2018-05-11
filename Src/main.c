@@ -46,6 +46,7 @@
 #include "stdio.h"
 #include "LED_cntrl_hci.h"
 #include "scheduler.h"
+#include "side_clouds.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,7 +57,12 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 extern volatile show_db_t shows[NUM_OF_SHOWS];
+
 show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear, MeteorShow};
+/* choose system type */
+system_type_e system_type = SYSTEM_TYPE_TUNNEL;
+//system_type_e system_type = SYSTEM_TYPE_SIDE_CLOUDS;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,7 +134,18 @@ int main(void)
   init_LED_strips();
   init_shows();
   init_HCI_UART(&huart1);
-  init_scheduler();
+  if (system_type == SYSTEM_TYPE_TUNNEL)
+  {
+      init_scheduler();
+  }
+  else if (system_type == SYSTEM_TYPE_SIDE_CLOUDS)
+  {
+      init_side_clouds_show();
+  }
+  else if (system_type == SYSTEM_TYPE_CLOUDS)
+  {
+
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,18 +157,30 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-      for (show_idx=0; show_idx<NUM_OF_SHOWS; show_idx++)
+      if (system_type == SYSTEM_TYPE_TUNNEL)
       {
-          if (shows[show_idx].status == SHOW_STATUS_START)
+          for (show_idx=0; show_idx<NUM_OF_SHOWS; show_idx++)
           {
-              shows[show_idx].status = SHOW_STATUS_RUNNING;
-              shows_cb_functions[show_idx]();
-              if (shows[show_idx].status == SHOW_STATUS_STOP)
+              if (shows[show_idx].status == SHOW_STATUS_START)
               {
-                  shows[show_idx].status = SHOW_STATUS_DISABLED;
+                  shows[show_idx].status = SHOW_STATUS_RUNNING;
+                  shows_cb_functions[show_idx]();
+                  if (shows[show_idx].status == SHOW_STATUS_STOP)
+                  {
+                      shows[show_idx].status = SHOW_STATUS_DISABLED;
+                  }
               }
           }
       }
+      else if (system_type == SYSTEM_TYPE_SIDE_CLOUDS)
+      {
+          side_clouds_show();
+      }
+      else if (system_type == SYSTEM_TYPE_CLOUDS)
+      {
+
+      }
+
   }
   /* USER CODE END 3 */
 
