@@ -22,14 +22,15 @@
 /* default defines */
 #define DEFAULT_MAX_SECTIONS        (24)
 #define DEFAULT_MAX_ACTIVE_SECTIONS (8)
-#define DEFAULT_MAX_DURATION        (500)
-#define DEFAULT_MIN_DURATION        (300)
+#define DEFAULT_MAX_DURATION        (350)
+#define DEFAULT_MIN_DURATION        (200)
 #define DEFAULT_REFRESH_RATE_SIDE_CLOUDS (30)
+#define DEFAULT_SECTION_PROBABILITY (350)
 
 typedef struct _side_cloud_section
 {
-    uint8_t count;
-    uint8_t duration;
+    uint16_t count;
+    uint16_t duration;
     uint8_t color[NUM_OF_CFG_BYTES_PER_LED];
 } side_cloud_section_t;
 
@@ -37,9 +38,10 @@ typedef struct _side_clouds
 {
     uint8_t num_of_sections;
     uint8_t max_active_sections;
-    uint8_t refresh_rate;
-    uint16_t maximum_duration;
-    uint16_t minimum_duration;
+    uint8_t refresh_rate; /* delay in miliseconds between frames */
+    uint16_t maximum_duration; /* in refresh rate quantities */
+    uint16_t minimum_duration; /* in refresh rate quantities */
+    uint16_t section_probability; /* in 0.01% if section_brobablity equals 100 then the probability is 1% */
     side_cloud_section_t section[MAX_NUM_OF_SECTIONS];
 } side_clouds_t;
 

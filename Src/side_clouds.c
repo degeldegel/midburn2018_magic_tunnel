@@ -48,6 +48,7 @@ void init_side_clouds_show(void)
     side_clouds_db.minimum_duration    = DEFAULT_MIN_DURATION;
     side_clouds_db.num_of_sections     = DEFAULT_MAX_SECTIONS;
     side_clouds_db.refresh_rate        = DEFAULT_REFRESH_RATE_SIDE_CLOUDS;
+    side_clouds_db.section_probability = DEFAULT_SECTION_PROBABILITY;
     /* init flow */
     for (section_id = 0; section_id < side_clouds_db.num_of_sections; section_id++)
     {
@@ -81,7 +82,7 @@ void side_clouds_show(void)
     while (1)
     {
         // Check if we need to activate a new section
-        if ( (active_sections < side_clouds_db.max_active_sections) && ((rand() % 100) < 10))
+        if ( (active_sections < side_clouds_db.max_active_sections) && ((rand() % 10000) < side_clouds_db.section_probability))
         {
             uint8_t found_new_section = False;
             uint8_t rand_color;
@@ -118,11 +119,11 @@ void side_clouds_show(void)
                 section_strip = section_id * leds_per_section / MAX_LEDS_IN_STRIP;
                 section_first_led = (section_id * leds_per_section) % MAX_LEDS_IN_STRIP;
 
-                if (side_clouds_db.section[section_id].count > (section_duration * 0.9f))
+                if (side_clouds_db.section[section_id].count > (section_duration * 0.7f))
                 {
                     // Fade In
 
-                    double fade_in_percentage = ((double)(section_duration - side_clouds_db.section[section_id].count)) / ((double)section_duration * 0.1f);
+                    double fade_in_percentage = ((double)(section_duration - side_clouds_db.section[section_id].count)) / ((double)section_duration * 0.3f);
                     uint8_t color_r = SIDE_CLOUD_SET_POWER(side_clouds_db.section[section_id].color[RED]);//percent_of_rgb[RED] *   SIDE_CLOUD_SET_POWER(200);
                     uint8_t color_g = SIDE_CLOUD_SET_POWER(side_clouds_db.section[section_id].color[GREEN]);//percent_of_rgb[GREEN] * SIDE_CLOUD_SET_POWER(200);
                     uint8_t color_b = SIDE_CLOUD_SET_POWER(side_clouds_db.section[section_id].color[BLUE]);//percent_of_rgb[BLUE] *  SIDE_CLOUD_SET_POWER(200);
@@ -135,10 +136,10 @@ void side_clouds_show(void)
                     }
 
                 }
-                else if (side_clouds_db.section[section_id].count < section_duration * 0.1f)
+                else if (side_clouds_db.section[section_id].count < section_duration * 0.25f)
                 {
                     // Fade Out
-                    double dim_percentage = (double)side_clouds_db.section[section_id].count / (section_duration * 0.1f);
+                    double dim_percentage = (double)side_clouds_db.section[section_id].count / (section_duration * 0.25f);
                     for (led_id = section_first_led; (led_id < section_first_led + leds_per_section) && (led_id < MAX_LEDS_IN_STRIP); led_id++)
                     {
                         LED_strips[section_strip][led_id][RED]   = LED_strips[section_strip][led_id][RED] * dim_percentage;
