@@ -19,18 +19,10 @@ extern volatile uint8_t LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LE
   */
 void side_clouds_show(void)
 {
-    volatile int led_id;  // , strip_id;
+    volatile int led_id;
 
-//    uint32_t cycle_cntr=0, startup_cycle_cntr=0;
     double percent_of_rgb[3]={0};
-//    uint8_t select_new_color = TRUE;
-//    int8_t shut_down_seq_idx;
-//    uint16_t new_led_idx;
-    //uint8_t snake_show_id = 3; //this was added as preparation for future option of snake id not aligned with show id
 
-    //light up green led indication
-    //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-    //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     #define NUM_OF_SECTIONS (24)
     #define NUM_OF_SIDE_CLOUD_STRIPS (8)
     #define REFRESH_RATE_SIDE_CLOUDS (30)
@@ -48,6 +40,7 @@ void side_clouds_show(void)
     {
         sections[section_id] = 0;
     }
+    HAL_Delay(3);
     srand(SysTick->VAL);
     for (rgb_idx=0; rgb_idx<3; rgb_idx++)
     {
@@ -88,20 +81,32 @@ void side_clouds_show(void)
                 section_strip = section_id * leds_per_section / MAX_LEDS_IN_STRIP;
                 section_first_led = (section_id * leds_per_section) % MAX_LEDS_IN_STRIP;
 
-                if (sections[section_id] > section_show_duration * 0.9f)
+                if (sections[section_id] > (section_show_duration * 0.9f))
                 {
                     // Fade In
+                    double fade_in_percentage = ((double)(section_show_duration - sections[section_id])) / ((double)section_show_duration * 0.1f);
+                    uint8_t color_r = percent_of_rgb[RED] *   SIDE_CLOUD_SET_POWER(200);
+                    uint8_t color_g = percent_of_rgb[GREEN] * SIDE_CLOUD_SET_POWER(200);
+                    uint8_t color_b = percent_of_rgb[BLUE] *  SIDE_CLOUD_SET_POWER(200);
+
+                    for (led_id = section_first_led; (led_id < section_first_led + leds_per_section) && (led_id < MAX_LEDS_IN_STRIP); led_id++)
+                    {
+                        LED_strips[section_strip][led_id][RED]   = color_r * fade_in_percentage;
+                        LED_strips[section_strip][led_id][GREEN] = color_g * fade_in_percentage;
+                        LED_strips[section_strip][led_id][BLUE]  = color_b * fade_in_percentage;
+                    }
+
                 }
-                if (sections[section_id] < section_show_duration * 0.1f)
+                else if (sections[section_id] < section_show_duration * 0.1f)
                 {
                     // Fade Out
+                    double dim_percentage = (double)sections[section_id] / (section_show_duration * 0.1f);
                     for (led_id = section_first_led; (led_id < section_first_led + leds_per_section) && (led_id < MAX_LEDS_IN_STRIP); led_id++)
-                   {
-                       LED_strips[section_strip][led_id][RED]   = 0;
-                       LED_strips[section_strip][led_id][GREEN] = 0;
-                       LED_strips[section_strip][led_id][BLUE]  = 0;
-                   }
-
+                    {
+                        LED_strips[section_strip][led_id][RED]   = LED_strips[section_strip][led_id][RED] * dim_percentage;
+                        LED_strips[section_strip][led_id][GREEN] = LED_strips[section_strip][led_id][GREEN] * dim_percentage;
+                        LED_strips[section_strip][led_id][BLUE]  = LED_strips[section_strip][led_id][BLUE] * dim_percentage;
+                    }
                 }
                 else
                 {
