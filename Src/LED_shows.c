@@ -135,7 +135,6 @@ void init_shows(void)
 		shows[i].direction = REGULAR_DIRECTION;
 		shows[i].max_power = DEFAULT_MAX_POWER;
 	}
-	shows[1].direction = ALTERNATE_DIRECTION;
 	/* clean Flash! -----> */
 //	config_db.magic_word = 0;
 //	flashStore((uint32_t*)&config_db, DATA_FLASH_START_ADDR, 0x4);
@@ -169,7 +168,8 @@ void load_default_configuration(void)
         config_db.snake[snake_id].snake_length = DEFAULT_SNAKE_SHOW_SNAKE_LENGTH;
         config_db.snake[snake_id].starup_seq_end_cycle = DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE;
         /* update shows db */
-        shows[snake_show_id].direction = REGULAR_DIRECTION;
+        shows[snake_show_id].direction = (snake_id == 0) ? REGULAR_DIRECTION :
+                                         (snake_id == 1) ? ALTER_DIRECTION : REVERSE_DIRECTION;
         shows[snake_show_id].max_power = DEFAULT_MAX_POWER;
     }
 }
@@ -265,7 +265,7 @@ void snake_show(uint8_t snake_id)
             /* go over the strip and move every LED one hop according to the direction */
             /* For regular direction go from last led to the first and move state of led-1 to led_id*/
             /* For reverse direction go from the first to the last and move state of led_id+1 to led_id*/
-            if ((shows[snake_show_id].direction == REGULAR_DIRECTION) || ((shows[snake_show_id].direction == ALTERNATE_DIRECTION) (strip_id % 2 == 0)))
+            if ((shows[snake_show_id].direction == REGULAR_DIRECTION) || ((shows[snake_show_id].direction == ALTER_DIRECTION) && (strip_id % 2 == 0)))
             {
                 for (led_id=(MAX_LEDS_IN_STRIP-1); led_id!=0; led_id--)
                 {
@@ -302,15 +302,11 @@ void snake_show(uint8_t snake_id)
 				}
             }
             /* update the first led, the only one that wasn't updated till now */
-            new_led_idx = (shows[snake_show_id].direction == REGULAR_DIRECTION) ? 0 : MAX_LEDS_IN_STRIP-1;
+            new_led_idx = ((shows[snake_show_id].direction == REGULAR_DIRECTION) || ((shows[snake_show_id].direction == ALTER_DIRECTION) && (strip_id % 2 == 0))) ? 0 : MAX_LEDS_IN_STRIP-1;
             if (cycle_cntr < config_db.snake[snake_id].snake_length)
             {
                 uint8_t power = ((cycle_cntr == 0) || (cycle_cntr == (config_db.snake[snake_id].snake_length-1))) ? 50 :
                                 ((cycle_cntr == 1) || (cycle_cntr == (config_db.snake[snake_id].snake_length-2))) ? 100 : 200;
-                if (snake_show_id == 2)
-                {
-                	power = 200;
-                }
                 LED_strips[strip_id][new_led_idx][GREEN] = percent_of_rgb[GREEN] * SET_POWER(snake_show_id, power);
                 LED_strips[strip_id][new_led_idx][RED]   = percent_of_rgb[RED]   * SET_POWER(snake_show_id, power);
                 LED_strips[strip_id][new_led_idx][BLUE]  = percent_of_rgb[BLUE]  * SET_POWER(snake_show_id, power);
@@ -477,13 +473,13 @@ void MeteorShow(void)
 	//MeteorExplosion();
 
 	//turn off green led indication
-    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	shows[SHOWS_METEOR].status = SHOW_STATUS_DISABLED;
+    //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+	//shows[SHOWS_METEOR].status = SHOW_STATUS_DISABLED;
 }
 
 void TwinklingStars(void)
 {
-    volatile int led_id, strip_id;
+    volatile int led_id, strip_id, rgb_id;
     int8_t shut_down_seq_idx;
     // twinkle cycle time
     volatile int cycle_length = 30;
@@ -491,6 +487,20 @@ void TwinklingStars(void)
     uint8_t step_size = shows[SHOWS_METEOR].max_power * 2 / cycle_length;
     // probability for each led to start the twinkle
     volatile double twinkle_probabilty = 400;
+
+    /* clean screen before you start */
+
+    for (strip_id=0; strip_id < MAX_ACTIVE_STRIPS; strip_id++)
+    {
+        for (led_id=0; led_id < MAX_LEDS_IN_STRIP; led_id++)
+        {
+            for (rgb_id=0; rgb_id < NUM_OF_CFG_BYTES_PER_LED; rgb_id++)
+            {
+                LED_strips[strip_id][led_id][rgb_id] = 0;
+            }
+        }
+    }
+    drive_LED_strips();
 
     //light up green led indication
     //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);

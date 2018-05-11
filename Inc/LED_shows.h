@@ -10,13 +10,13 @@
 
 #define REGULAR_DIRECTION (0) //From LED #0 to end of strip
 #define REVERSE_DIRECTION (1) //From end of strip to LED #0
-#define ALTERNATE_DIRECTION(2)
+#define ALTER_DIRECTION   (2)
 #define NUM_OF_SHOWS      (5)
 #define DEFAULT_MAX_POWER (60)
 #define NUM_OF_SNAKE_SHOWS (3)
 #define DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS (10) //in how many steps the snakes should fade out (for shut down sequence)
-#define DEFAULT_SNAKE_SHOW_REFRESH_TIME (30) //period time of refresh rate in milisec
-#define DEFAULT_SNAKE_SHOW_CYCLE_LENGTH (17) //this is the length of the cycle of one snake (one snake length + gap to next snake)
+#define DEFAULT_SNAKE_SHOW_REFRESH_TIME (20) //period time of refresh rate in milisec
+#define DEFAULT_SNAKE_SHOW_CYCLE_LENGTH (15) //this is the length of the cycle of one snake (one snake length + gap to next snake)
 #define DEFAULT_SNAKE_SHOW_SNAKE_LENGTH (15)
 #define DEFAULT_SNAKE_SHOW_PERFORM_STRATUP_SEQ   (1)
 #define DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE (300)
