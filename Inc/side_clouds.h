@@ -16,6 +16,8 @@
 #define MAX_NUM_OF_SECTIONS (96)
 #define NUM_OF_SIDE_CLOUD_STRIPS (8)
 
+/* color scheme */
+#define NUM_OF_COLORS_PALETTE (20)
 
 /* default defines */
 #define DEFAULT_MAX_SECTIONS        (24)
