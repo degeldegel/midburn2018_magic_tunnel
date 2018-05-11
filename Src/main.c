@@ -137,7 +137,7 @@ int main(void)
   }
   else if (system_type == SYSTEM_TYPE_SIDE_CLOUDS)
   {
-
+      init_side_clouds_show();
   }
   else if (system_type == SYSTEM_TYPE_CLOUDS)
   {
