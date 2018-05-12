@@ -12,7 +12,7 @@
 #define REVERSE_DIRECTION (1) //From end of strip to LED #0
 #define ALTER_DIRECTION   (2)
 #define NUM_OF_SHOWS      (5)
-#define DEFAULT_MAX_POWER (60)
+#define DEFAULT_MAX_POWER (50)
 #define NUM_OF_SNAKE_SHOWS (3)
 #define DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS (10) //in how many steps the snakes should fade out (for shut down sequence)
 #define DEFAULT_SNAKE_SHOW_REFRESH_TIME (20) //period time of refresh rate in milisec
@@ -184,5 +184,12 @@ void MeteorDrop(void);
   * @retval void
   */
 void MeteorExplosion(void);
+
+/**
+  * @brief  initialize shows database for cloud system type.
+  * @param  void
+  * @retval void
+  */
+void init_clouds(void);
 
 #endif  /* _LED_SHOWS_H */

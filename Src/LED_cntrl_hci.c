@@ -19,7 +19,7 @@ uint8_t handle_new_hci_command()
             hci_show_config_pckt_t *p_show_config_pckt = (hci_show_config_pckt_t*)uart_hci_buffer;
             if (uart_hci_buffer[HCI_PCKT_LENGTH] != SHOW_CONFIG_LENGTH_SIZE) return HCI_COMMAND_FAILED;
             shows[p_show_config_pckt->show_id].max_power = p_show_config_pckt->max_power;
-            if (p_show_config_pckt->direction != 2 /* Don't configure direction */)
+            if (p_show_config_pckt->direction != 3 /* Don't configure direction */)
             {
                 shows[p_show_config_pckt->show_id].direction = p_show_config_pckt->direction;
             }

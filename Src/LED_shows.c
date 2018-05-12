@@ -122,6 +122,23 @@ double rainbow[12][3] =
 };
 
 /**
+  * @brief  initialize shows database for cloud system type.
+  * @param  void
+  * @retval void
+  */
+void init_clouds(void)
+{
+    config_db.snake[0].cycle_length = 20;
+    config_db.snake[0].fade_out_steps = DEFAULT_SNAKE_SHOW_FADE_OUT_STEPS;
+    config_db.snake[0].perform_startup_seq = DEFAULT_SNAKE_SHOW_PERFORM_STRATUP_SEQ;
+    config_db.snake[0].refresh_time = 30;
+    config_db.snake[0].snake_length = 15;
+    config_db.snake[0].starup_seq_end_cycle = DEFAULT_SNAKE_SHOW_STARTUP_SEQ_END_CYCLE;
+    config_db.snake[0].direction = REGULAR_DIRECTION;
+    config_db.snake[0].max_power = DEFAULT_MAX_POWER;
+}
+
+/**
   * @brief  initialize shows database.
   * @param  void
   * @retval void
@@ -486,7 +503,7 @@ void TwinklingStars(void)
 
     uint8_t step_size = shows[SHOWS_METEOR].max_power * 2 / cycle_length;
     // probability for each led to start the twinkle
-    volatile double twinkle_probabilty = 400;
+    volatile double twinkle_probabilty = 50;
 
     /* clean screen before you start */
 

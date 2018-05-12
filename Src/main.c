@@ -60,8 +60,9 @@ extern volatile show_db_t shows[NUM_OF_SHOWS];
 
 show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear, MeteorShow};
 /* choose system type */
-system_type_e system_type = SYSTEM_TYPE_TUNNEL;
+//system_type_e system_type = SYSTEM_TYPE_TUNNEL;
 //system_type_e system_type = SYSTEM_TYPE_SIDE_CLOUDS;
+system_type_e system_type = SYSTEM_TYPE_CLOUDS;
 
 /* USER CODE END PV */
 
@@ -144,6 +145,11 @@ int main(void)
   }
   else if (system_type == SYSTEM_TYPE_CLOUDS)
   {
+      init_clouds();
+      /* update shows db */
+      shows[0].direction = REGULAR_DIRECTION;
+      shows[0].max_power = DEFAULT_MAX_POWER;
+      shows[0].status = SHOW_STATUS_RUNNING;
 
   }
   /* USER CODE END 2 */
@@ -178,7 +184,7 @@ int main(void)
       }
       else if (system_type == SYSTEM_TYPE_CLOUDS)
       {
-
+          snake_show_0();
       }
 
   }
