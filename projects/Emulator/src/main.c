@@ -28,6 +28,8 @@
 #include <stdio.h>
 
 extern volatile show_db_t shows[NUM_OF_SHOWS];
+extern systick_emul_t SysTick_s;
+extern systick_emul_t *SysTick;
 
 int main(void){
 
@@ -37,8 +39,8 @@ int main(void){
     fflush(stdout);
 
     init_shows();
-    shows[SHOWS_SNAKE].max_power = 100; /*to see it beter in the emulator*/
-    //shows[SHOWS_SNAKE].status = SHOW_STATUS_RUNNING;
+    shows[SHOWS_SNAKE_0].max_power = 100; /*to see it beter in the emulator*/
+    //shows[SHOWS_SNAKE_0].status = SHOW_STATUS_RUNNING;
     //snake_show();
 
     shows[SHOWS_METEOR].max_power = 200; /*to see it beter in the emulator*/

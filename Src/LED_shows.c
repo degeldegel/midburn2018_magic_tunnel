@@ -12,6 +12,11 @@ extern volatile uint8_t LED_strips[MAX_SUPPORTED_NUM_OF_STRIPS][MAX_SUPPORTED_LE
 volatile show_db_t shows[NUM_OF_SHOWS];
 volatile flash_show_config_db_t config_db;
 
+#ifdef LED_EMULATOR
+extern systick_emul_t SysTick_s;
+extern systick_emul_t *SysTick;
+#endif
+
 int teddy_bear[MAX_SUPPORTED_NUM_OF_STRIPS][TEDDY_BEAR_SNAKE_LENGTH] =
 {
         {0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1},
@@ -198,6 +203,7 @@ void load_default_configuration(void)
   */
 void store_config_to_flash(void)
 {
+#ifndef LED_EMULATOR
     uint8_t status;
     uint8_t show_idx;
 
@@ -214,6 +220,7 @@ void store_config_to_flash(void)
     {
         while(1){}
     }
+#endif
 }
 
 /**
@@ -223,6 +230,7 @@ void store_config_to_flash(void)
   */
 void load_config_from_flash(void)
 {
+#ifndef LED_EMULATOR
     /* read magic word only, if OK proceed with full read */
     flashLoad((uint32_t*)&config_db, DATA_FLASH_START_ADDR, 0x4);
     if (config_db.magic_word == FLASH_MAGIC_WORD)
@@ -237,6 +245,7 @@ void load_config_from_flash(void)
             shows[show_idx].direction = config_db.snake[snake_idx].direction;
         }
     }
+#endif
 }
 
 void snake_show_0(void)
