@@ -60,9 +60,9 @@ extern volatile show_db_t shows[NUM_OF_SHOWS];
 
 show_cb_function shows_cb_functions[NUM_OF_SHOWS] = {snake_show_0, snake_show_1, snake_show_2, teady_bear, MeteorShow};
 /* choose system type */
-//system_type_e system_type = SYSTEM_TYPE_TUNNEL;
+system_type_e system_type = SYSTEM_TYPE_TUNNEL;
 //system_type_e system_type = SYSTEM_TYPE_SIDE_CLOUDS;
-system_type_e system_type = SYSTEM_TYPE_CLOUDS;
+//system_type_e system_type = SYSTEM_TYPE_CLOUDS;
 
 /* USER CODE END PV */
 
