@@ -18,6 +18,7 @@
 #define GPIO_PRT_NA (255)
 #define GPIO_PIN_NA ((uint16_t)0x0000)
 #define LED_MAX_POWER (150)
+#define CYCLES_DELAY_COMPENSATION (12)
 
 /* =========================================================================================== */
 /* ==  ENUMS == */

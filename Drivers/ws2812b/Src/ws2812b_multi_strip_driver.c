@@ -35,34 +35,34 @@ uint16_t strip_GPIOs[MAX_SUPPORTED_NUM_OF_STRIPS] =
   */
 void drive_ws2812b_LED_strips_via_GPIO_ports(void)
 {
-	volatile int idx;
-	int i, curr_led_bit_idx;
+	int curr_led_bit_idx;
 	uint16_t curr_zero_mask[2];
-	//volatile uint32_t systick_val[4];
+	uint32_t cycle_time_psec, cycles_of_350_nano, cycles_of_900_nano, cycles_of_1250_nano;
+    cycle_time_psec = 1000000/(SystemCoreClock/1000000); //cycletime in picksec
+    cycles_of_350_nano = 350000/cycle_time_psec - CYCLES_DELAY_COMPENSATION;
+    cycles_of_900_nano = 900000/cycle_time_psec - CYCLES_DELAY_COMPENSATION;
+    cycles_of_1250_nano = 1250000/cycle_time_psec - CYCLES_DELAY_COMPENSATION;
 	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 	for (curr_led_bit_idx=0; curr_led_bit_idx < MAX_LEDS_IN_STRIP * BITS_TO_CONFIGURE_ONE_LED; curr_led_bit_idx++)
 	{
+	    DWT->CYCCNT = 0;
 		//raise all Strips up
-	    //systick_val[0] = SysTick->VAL;
 		GPIOB->ODR |=  GPIO_all_strips_mask[GPIO_PORT_B];
 		GPIOC->ODR |=  GPIO_all_strips_mask[GPIO_PORT_C];
 		//wait for strips with bit value zero
-		for (i=0; i < 10; i++) {idx=i;}
+		while(DWT->CYCCNT < cycles_of_350_nano) {};
 		//lower all strips with bit value zero
 		curr_zero_mask[GPIO_PORT_B] = GPIO_strips_mask[GPIO_PORT_B][curr_led_bit_idx];
 		curr_zero_mask[GPIO_PORT_C] = GPIO_strips_mask[GPIO_PORT_C][curr_led_bit_idx];
-		//systick_val[1] = SysTick->VAL;
 		GPIOB->ODR &= ~curr_zero_mask[GPIO_PORT_B];
 		GPIOC->ODR &= ~curr_zero_mask[GPIO_PORT_C];
 		//wait for strips with bit value one
-		for (i=0; i < 14; i++) {idx=i;}
+		while(DWT->CYCCNT < cycles_of_900_nano) {};
 		//lower all strips with bit value zero
-		//systick_val[2] = SysTick->VAL;
 		GPIOB->ODR &= ~(curr_zero_mask[GPIO_PORT_B] ^ GPIO_all_strips_mask[GPIO_PORT_B]);
 		GPIOC->ODR &= ~(curr_zero_mask[GPIO_PORT_C] ^ GPIO_all_strips_mask[GPIO_PORT_C]);
-		//finish bit configuration cycle ~1.25 msec
-		for (i=0; i < 10; i++) {idx=i;}
-		//systick_val[3] = SysTick->VAL;
+		//wait for end of bit configuration cycle ~1.25 msec
+		while(DWT->CYCCNT < cycles_of_1250_nano) {};
 	}
 	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 }
@@ -166,6 +166,8 @@ void init_LED_strips(void)
     update_GPIO_all_strips_mask(GPIO_PORT_B, port_b_active_strips_mask);
     update_GPIO_all_strips_mask(GPIO_PORT_C, port_c_active_strips_mask);
 
+    // enable DWT counter used for timing of the driver
+    DWT->CTRL |= 1;
 
     drive_LED_strips();
 }
